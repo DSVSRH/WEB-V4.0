@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medicine Sales Report</title>
+
+    <link rel="icon" type="image/png" href="https://dsvsrh.github.io/DRSVR-IMG-2026/IMG_02_FEVICON_ICON.png">
+
+    <link rel="apple-touch-icon" href="https://dsvsrh.github.io/DRSVR-IMG-2026/IMG_02_FEVICON_ICON.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#1e3a8a">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        body { font-family: 'Roboto Slab', serif; background-color: #f8fafc; margin: 0; min-height: 100vh; display: flex; flex-direction: column; font-size: 0.75rem; }
+        .header-section { background-color: white; border-bottom: 2px solid #1e3a8a; padding: 0.75rem; }
+        .logo-img { height: 45px; width: 45px; object-fit: contain; }
+        .hospital-name { font-size: 1.1rem; font-weight: 800; color: #1e3a8a; text-transform: uppercase; letter-spacing: -0.01em; }
+        .tagline { font-size: 0.75rem; font-weight: 700; color: #1e3a8a; }
+        .report-card { background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(30, 58, 138, 0.04); padding: 12px; border: 1px solid #e2e8f0; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background-color: #f1f5f9; color: #1e3a8a; padding: 6px 8px; text-align: left; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; border-bottom: 2px solid #e2e8f0; }
+        td { padding: 6px 8px; border-bottom: 1px solid #f1f5f9; color: #334155; font-size: 0.7rem; }
+        tr:nth-child(even) { background-color: #f8fafc; }
+        tr:hover { background-color: #f1f5f9; }
+        .footer-section { background-color: white; border-top: 1px solid #e2e8f0; padding: 0.75rem; margin-top: auto; text-align: center; color: #1e3a8a; }
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 2px; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <!-- CONSTANT HEADER FOR BOTH SCREENS -->
+    <header class="header-section shadow-sm">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+            <div class="flex items-center gap-3 text-center sm:text-left">
+                <img src="https://dsvsrh.github.io/DRSVR-IMG-2026/IMG_01_HEDER_LOGO_MAIN.png" alt="Hospital Logo" class="logo-img">
+                <div>
+                    <h1 class="hospital-name">Dr. S. Venkata Subba Reddy Multispecialty Hospital</h1>
+                    <p class="tagline">"Best Of Care, Close to Home" | <i class="fas fa-phone-alt ml-1 mr-1"></i> 9063307444</p>
+                </div>
+            </div>
+            <div id="session-controls" class="hidden flex items-center gap-2 bg-slate-50 p-1.5 rounded-xl border">
+                <div class="text-right pl-2">
+                    <p class="text-[0.6rem] text-gray-500 font-bold uppercase">Authorized</p>
+                    <p class="text-xs font-black text-blue-900" id="user-display-name"></p>
+                </div>
+                <button onclick="handleLogout()" class="bg-red-500 hover:bg-red-600 text-white px-2.5 py-1.5 rounded-lg text-[0.65rem] font-bold transition flex items-center gap-1 shadow">
+                    <i class="fas fa-power-off"></i> <span>Logout</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- SECURED ACCESS CONTROL (LOGIN SCREEN) -->
+    <div id="login-container" class="flex-grow flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-xl p-6 max-w-xs w-full border-t-4 border-blue-900 fade-in">
+            <div class="text-center mb-4">
+                <img src="https://dsvsrh.github.io/DRSVR-IMG-2026/IMG_01_HEDER_LOGO_MAIN.png" alt="Hospital Logo" class="mx-auto h-16 w-16 object-contain mb-2">
+                <h2 class="text-sm font-extrabold text-blue-900 uppercase tracking-tight">Dr. S. Venkata Subba Reddy</h2>
+                <p class="text-[0.55rem] text-gray-500 font-bold tracking-widest mt-0.5">MULTISPECIALTY HOSPITAL</p>
+                <div class="h-0.5 w-10 bg-blue-900 mx-auto mt-2 rounded-full"></div>
+            </div>
+
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <div class="mb-3">
+                    <label class="block text-slate-700 text-[0.65rem] font-bold uppercase mb-1" for="uid">
+                        <i class="fas fa-user-md text-blue-900 mr-1"></i> Admin UID
+                    </label>
+                    <input class="shadow-sm border border-slate-200 rounded-lg w-full py-1.5 px-3 text-slate-700 font-semibold text-xs uppercase focus:outline-none focus:ring-1 focus:ring-blue-800" 
+                           id="uid" type="text" placeholder="ENTER UID" required oninput="this.value = this.value.toUpperCase();" onkeydown="handleUidKeydown(event)">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-slate-700 text-[0.65rem] font-bold uppercase mb-1" for="pwd">
+                        <i class="fas fa-key text-blue-900 mr-1"></i> Password
+                    </label>
+                    <input class="shadow-sm border border-slate-200 rounded-lg w-full py-1.5 px-3 text-slate-700 font-semibold text-xs focus:outline-none focus:ring-1 focus:ring-blue-800" 
+                           id="pwd" type="password" placeholder="••••" required>
+                </div>
+
+                <div id="login-error" class="hidden mb-3 p-2 bg-red-50 border-l-2 border-red-600 text-red-800 text-[0.65rem] rounded">
+                    <div class="flex items-center gap-1">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span id="error-text" class="font-bold">Invalid Credentials</span>
+                    </div>
+                </div>
+
+                <button class="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-2 px-3 rounded-lg text-xs shadow transition flex items-center justify-center gap-1.5" 
+                        type="submit" id="login-btn">
+                    <span>Unlock Sales Register</span>
+                    <i id="login-spinner" class="fas fa-circle-notch fa-spin hidden"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN HOSPITAL WORKSPACE -->
+    <div id="dashboard-container" class="hidden flex-col flex-grow">
+        <!-- Date Selector Filter Line -->
+        <div class="bg-slate-100 border-b border-slate-200 py-2.5 px-4 flex justify-between items-center">
+            <div class="flex items-center gap-2 max-w-xs">
+                <label for="date-filter" class="text-slate-600 font-bold text-[0.65rem] uppercase">Date:</label>
+                <input type="date" id="date-filter" onchange="loadDatabaseLedger()" class="border border-slate-300 rounded px-2 py-1 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-blue-800">
+            </div>
+            <div class="flex gap-1.5">
+                <button onclick="clearAllData()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold py-1 px-2.5 rounded text-[0.65rem] transition flex items-center gap-1">
+                    <i class="fas fa-broom"></i> <span>Reset View</span>
+                </button>
+                <button onclick="loadDatabaseLedger()" class="bg-blue-900 hover:bg-blue-800 text-white font-bold py-1 px-2.5 rounded text-[0.65rem] transition flex items-center gap-1">
+                    <i id="sync-icon" class="fas fa-sync-alt"></i> <span>Sync</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Today Statistics Bar (Dynamically updated for selected date) -->
+        <div class="bg-slate-50 border-b border-slate-200 py-3 px-4">
+            <div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div class="bg-white p-2.5 rounded-lg border border-slate-200 shadow-sm flex items-center gap-2.5">
+                    <div class="p-2 bg-blue-50 text-blue-900 rounded"><i class="fas fa-file-invoice-dollar text-sm"></i></div>
+                    <div>
+                        <p class="text-[0.6rem] font-bold text-slate-500 uppercase tracking-wider">Today's Revenue</p>
+                        <p class="text-sm font-black text-slate-800" id="stat-revenue">₹0.00</p>
+                    </div>
+                </div>
+                <div class="bg-white p-2.5 rounded-lg border border-slate-200 shadow-sm flex items-center gap-2.5">
+                    <div class="p-2 bg-emerald-50 text-emerald-700 rounded"><i class="fas fa-pills text-sm"></i></div>
+                    <div>
+                        <p class="text-[0.6rem] font-bold text-slate-500 uppercase tracking-wider">Today's Meds Qty</p>
+                        <p class="text-sm font-black text-slate-800" id="stat-qty">0 units</p>
+                    </div>
+                </div>
+                <div class="bg-white p-2.5 rounded-lg border border-slate-200 shadow-sm flex items-center gap-2.5">
+                    <div class="p-2 bg-purple-50 text-purple-700 rounded"><i class="fas fa-users-medical text-sm"></i></div>
+                    <div>
+                        <p class="text-[0.6rem] font-bold text-slate-500 uppercase tracking-wider">Today's Invoices</p>
+                        <p class="text-sm font-black text-slate-800" id="stat-invoices">0 Bills</p>
+                    </div>
+                </div>
+                <div class="bg-white p-2.5 rounded-lg border border-slate-200 shadow-sm flex items-center gap-2.5">
+                    <div class="p-2 bg-amber-50 text-amber-700 rounded"><i class="fas fa-hand-holding-usd text-sm"></i></div>
+                    <div>
+                        <p class="text-[0.6rem] font-bold text-slate-500 uppercase tracking-wider">Today's Discounts</p>
+                        <p class="text-sm font-black text-slate-800" id="stat-discounts">₹0.00</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Workspace Panels -->
+        <main class="flex-grow p-3 md:p-4">
+            <div class="max-w-7xl mx-auto fade-in">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                    
+                    <!-- LEFT COLUMN: Patient Receipt Directory -->
+                    <div class="lg:col-span-7 flex flex-col gap-3">
+                        <div class="report-card">
+                            <div class="flex items-center justify-between mb-3 pb-1 border-b">
+                                <h3 class="text-sm font-extrabold text-blue-900 flex items-center gap-1.5">
+                                    <i class="fas fa-id-card"></i> Patient Receipt Directory
+                                </h3>
+                                <span class="bg-blue-100 text-blue-900 text-[0.6rem] font-black px-1.5 py-0.5 rounded" id="invoice-count">0 Records</span>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="relative">
+                                    <input type="text" id="directory-search" oninput="filterInvoices()" placeholder="Search by ID, Name or Gender..." 
+                                           class="w-full pl-8 pr-3 py-1.5 border border-slate-200 rounded-lg text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-blue-900">
+                                    <i class="fas fa-search absolute left-2.5 top-2.5 text-gray-400"></i>
+                                </div>
+                            </div>
+
+                            <!-- Receipts Table -->
+                            <div class="overflow-x-auto border rounded-lg shadow-inner max-h-[350px]">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Receipt ID</th>
+                                            <th>Time</th>
+                                            <th>Patient Name</th>
+                                            <th>Age / Sex</th>
+                                            <th class="text-right">Discount</th>
+                                            <th class="text-right">Final Amt</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="invoice-table-body">
+                                        <tr>
+                                            <td colspan="6" class="text-center text-gray-400 py-8">
+                                                <i class="fas fa-cloud-download-alt text-lg mb-1 block"></i>
+                                                <span>Awaiting synchronization...</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT COLUMN: Medicine Sales Summary -->
+                    <div class="lg:col-span-5 flex flex-col gap-3">
+                        <div class="report-card">
+                            <div class="flex items-center justify-between mb-3 pb-1 border-b">
+                                <h3 class="text-sm font-extrabold text-blue-900 flex items-center gap-1.5">
+                                    <i class="fas fa-chart-line"></i> Daily Medicine Sales Volume
+                                </h3>
+                                <span class="bg-emerald-100 text-emerald-800 text-[0.6rem] font-black px-1.5 py-0.5 rounded" id="med-count">0 Meds</span>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="relative">
+                                    <input type="text" id="med-search" oninput="filterMedicines()" placeholder="Filter by Code or Name..." 
+                                           class="w-full pl-8 pr-3 py-1.5 border border-slate-200 rounded-lg text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-blue-900">
+                                    <i class="fas fa-pills absolute left-2.5 top-2.5 text-gray-400"></i>
+                                </div>
+                            </div>
+
+                            <!-- Medicines Table -->
+                            <div class="overflow-y-auto max-h-[350px] border rounded-lg shadow-inner">
+                                <table>
+                                    <thead class="sticky top-0 z-10 bg-slate-50">
+                                        <tr>
+                                            <th class="py-2 px-3">Medicine Item</th>
+                                            <th class="py-2 px-3 text-center">Qty Sold</th>
+                                            <th class="py-2 px-3 text-right">Revenue</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="med-table-body">
+                                        <tr>
+                                            <td colspan="3" class="text-center text-gray-400 py-8">
+                                                <span>No data synchronized...</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- CONSTANT FOOTER (NO ADDRESS) -->
+    <footer class="footer-section">
+        <p class="text-[0.6rem] font-black text-slate-400 uppercase tracking-widest">© 2026 Dr. S. Venkata Subba Reddy Multispeciality Hospital. All rights reserved.</p>
+    </footer>
+
+    <!-- POPUP MODALS -->
+    
+    <!-- Itemized Invoice Receipt Modal -->
+    <div id="invoice-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full border-t-4 border-blue-900 overflow-hidden fade-in">
+            <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                <div>
+                    <span class="text-[0.55rem] text-blue-900 font-extrabold uppercase tracking-widest block">Transaction Info</span>
+                    <h4 class="text-base font-black text-slate-800" id="modal-invoice-id">Invoice - B1001</h4>
+                </div>
+                <button onclick="closeInvoiceModal()" class="text-slate-400 hover:text-slate-600 transition p-1 bg-white rounded-lg border">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+            
+            <div class="p-4">
+                <div class="grid grid-cols-2 gap-2 bg-blue-50/50 p-3 rounded-lg border border-blue-100 mb-3">
+                    <div>
+                        <span class="text-[0.55rem] font-bold text-slate-400 uppercase block">Patient Name</span>
+                        <span class="text-xs font-black text-slate-800" id="modal-patient-name">-</span>
+                    </div>
+                    <div>
+                        <span class="text-[0.55rem] font-bold text-slate-400 uppercase block">Demographics</span>
+                        <span class="text-xs font-black text-slate-800" id="modal-patient-demo">-</span>
+                    </div>
+                    <div>
+                        <span class="text-[0.55rem] font-bold text-slate-400 uppercase block">Discount</span>
+                        <span class="text-xs font-black text-amber-700" id="modal-patient-discount">₹0.00</span>
+                    </div>
+                    <div>
+                        <span class="text-[0.55rem] font-bold text-slate-400 uppercase block">Final Bill</span>
+                        <span class="text-xs font-black text-blue-900" id="modal-patient-total">₹0.00</span>
+                    </div>
+                </div>
+
+                <h5 class="text-[0.55rem] font-bold text-slate-500 uppercase tracking-wider mb-2">Prescribed Pharmaceuticals</h5>
+                <div class="border rounded-lg overflow-hidden shadow-inner max-h-[150px] overflow-y-auto mb-2">
+                    <table>
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th class="py-1.5 px-2 text-[0.65rem]">ID</th>
+                                <th class="py-1.5 px-2 text-[0.65rem]">Name</th>
+                                <th class="py-1.5 px-2 text-center text-[0.65rem]">Qty</th>
+                                <th class="py-1.5 px-2 text-right text-[0.65rem]">Price</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modal-medicine-list"></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="p-3 bg-slate-50 border-t border-slate-100 flex justify-end">
+                <button onclick="closeInvoiceModal()" class="bg-blue-900 hover:bg-blue-800 text-white font-bold py-1.5 px-4 rounded-lg text-[0.65rem] transition">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Alert Modal -->
+    <div id="alert-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl p-4 max-w-xs w-full border-t-2 border-blue-900 text-center fade-in">
+            <i class="fas fa-info-circle text-blue-900 text-xl mb-1.5"></i>
+            <h4 class="text-xs font-black text-slate-800 mb-1" id="alert-title">System Alert</h4>
+            <p class="text-[0.7rem] text-gray-600 mb-4" id="alert-message"></p>
+            <button onclick="closeAlertModal()" class="bg-blue-900 hover:bg-blue-800 text-white font-bold py-1 px-4 rounded-md text-[0.65rem] transition shadow">Dismiss</button>
+        </div>
+    </div>
+
+    <!-- SCRIPT MATRIX -->
+    <script>
+        let currentUser = null, invoiceList = [], medicineSummaries = {};
+        
+        // Single line logic handlers
+        function showNotification(t, m) { document.getElementById('alert-title').innerText = t; document.getElementById('alert-message').innerText = m; document.getElementById('alert-modal').classList.remove('hidden'); }
+        function closeAlertModal() { document.getElementById('alert-modal').classList.add('hidden'); }
+        function handleUidKeydown(e) { if (e.key === 'Enter') { e.preventDefault(); document.getElementById('pwd').focus(); } }
+        function closeInvoiceModal() { document.getElementById('invoice-modal').classList.add('hidden'); }
+
+        // Set default date picker to Today on initialization
+        window.onload = function() {
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            document.getElementById('date-filter').value = `${yyyy}-${mm}-${dd}`;
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const uid = document.getElementById('uid').value.trim();
+            const pwd = document.getElementById('pwd').value.trim();
+            const errorBlock = document.getElementById('login-error');
+            const spinner = document.getElementById('login-spinner');
+            const loginBtn = document.getElementById('login-btn');
+
+            errorBlock.classList.add('hidden');
+            spinner.classList.remove('hidden');
+            loginBtn.disabled = true;
+
+            if (typeof google !== 'undefined' && google.script && google.script.run) {
+                google.script.run
+                    .withSuccessHandler(function(response) {
+                        spinner.classList.add('hidden'); loginBtn.disabled = false;
+                        if (response && response.success) setupUserSession(response);
+                        else { errorBlock.classList.remove('hidden'); }
+                    })
+                    .withFailureHandler(function(err) {
+                        spinner.classList.add('hidden'); loginBtn.disabled = false;
+                        showNotification("Network Error", err.message);
+                    })
+                    .checkLogin(uid, pwd);
+            } else {
+                // Local Sandbox Simulation
+                setTimeout(() => {
+                    spinner.classList.add('hidden'); loginBtn.disabled = false;
+                    const localUsers = [
+                        { uid: "SS1", pwd: "1111", name: "T.N. Lakshmi Reddy", role: "ADMIN" },
+                        { uid: "SS2", pwd: "1111", name: "S. Chandrika", role: "ADMIN" },
+                        { uid: "SS3", pwd: "1111", name: "S. Yashwanth Reddy", role: "ADMIN" },
+                        { uid: "SS4", pwd: "1111", name: "P. Haneesha Yashwanth", role: "ADMIN" },
+                        { uid: "SS5", pwd: "1111", name: "S. Narasimha Reddy", role: "ADMIN" },
+                        { uid: "SS6", pwd: "1111", name: "S. Siva Nageswaramma", role: "ADMIN" }
+                    ];
+                    const match = localUsers.find(u => u.uid === uid && u.pwd === pwd);
+                    if (match) setupUserSession({ success: true, name: match.name, role: match.role });
+                    else { errorBlock.classList.remove('hidden'); }
+                }, 400);
+            }
+        }
+
+        function setupUserSession(userProfile) {
+            currentUser = userProfile;
+            document.getElementById('user-display-name').innerText = userProfile.name;
+            document.getElementById('login-container').classList.add('hidden');
+            document.getElementById('session-controls').classList.remove('hidden');
+            document.getElementById('dashboard-container').classList.remove('hidden');
+            document.getElementById('dashboard-container').classList.add('flex');
+            loadDatabaseLedger();
+        }
+
+        function handleLogout() {
+            currentUser = null;
+            document.getElementById('uid').value = '';
+            document.getElementById('pwd').value = '';
+            document.getElementById('login-error').classList.add('hidden');
+            clearAllData();
+            document.getElementById('dashboard-container').classList.add('hidden');
+            document.getElementById('dashboard-container').classList.remove('flex');
+            document.getElementById('session-controls').classList.add('hidden');
+            document.getElementById('login-container').classList.remove('hidden');
+        }
+
+        /**
+         * Dynamic Parser: Maps merged rows index mapping exactly as specified
+         */
+        function parseSpreadsheetRows(rawData) {
+            const invoices = [];
+            let activeInvoice = null;
+
+            for (let i = 1; i < rawData.length; i++) {
+                const row = rawData[i];
+                if (!row || row.length < 14) continue;
+
+                const dateStr = row[1] ? String(row[1]).trim() : '';
+                const timeStr = row[2] ? String(row[2]).trim() : '';
+                const bdId = row[3] ? String(row[3]).trim() : '';
+                const name = row[4] ? String(row[4]).trim() : '';
+                const age = row[5] ? String(row[5]).trim() : '';
+                const gender = row[6] ? String(row[6]).trim() : '';
+                const discount = row[7] !== undefined && row[7] !== '' ? Number(row[7]) : null;
+                const totalPrice = row[8] !== undefined && row[8] !== '' ? Number(row[8]) : null;
+
+                const medId = row[9] ? String(row[9]).trim() : '';
+                const medShort = row[10] ? String(row[10]).trim() : '';
+                const medFull = row[11] ? String(row[11]).trim() : '';
+                const medQty = row[12] !== undefined && row[12] !== '' ? Number(row[12]) : 0;
+                const medPrice = row[13] !== undefined && row[13] !== '' ? Number(row[13]) : 0;
+
+                // Detect start of new transaction block
+                if (bdId) {
+                    if (activeInvoice) { invoices.push(activeInvoice); }
+                    activeInvoice = {
+                        id: bdId,
+                        date: dateStr,
+                        time: timeStr,
+                        name: name || "Unknown Patient",
+                        age: age || "-",
+                        gender: gender || "-",
+                        discount: discount !== null ? discount : 0,
+                        totalPrice: totalPrice !== null ? totalPrice : 0,
+                        medicines: []
+                    };
+                }
+
+                if (activeInvoice && medId) {
+                    activeInvoice.medicines.push({
+                        medId: medId,
+                        shortName: medShort,
+                        fullName: medFull,
+                        qty: medQty,
+                        price: medPrice
+                    });
+                }
+            }
+            if (activeInvoice) { invoices.push(activeInvoice); }
+            
+            // Reversing the parsed receipts list so newer transactions appear first
+            return invoices.reverse();
+        }
+
+        function loadDatabaseLedger() {
+            const tableBody = document.getElementById('invoice-table-body');
+            const syncIcon = document.getElementById('sync-icon');
+            const selectedDate = document.getElementById('date-filter').value; // YYYY-MM-DD format
+
+            syncIcon.classList.add('fa-spin');
+            tableBody.innerHTML = `<tr><td colspan="6" class="text-center py-8"><i class="fas fa-spinner fa-spin mr-1"></i> Parsing live database...</td></tr>`;
+
+            if (typeof google !== 'undefined' && google.script && google.script.run) {
+                google.script.run
+                    .withSuccessHandler(function(rawValues) {
+                        syncIcon.classList.remove('fa-spin');
+                        if (rawValues && Array.isArray(rawValues)) processDataAndPopulate(rawValues, selectedDate);
+                        else showNotification("System Alert", "No records retrieved from Google Sheet.");
+                    })
+                    .withFailureHandler(function(err) {
+                        syncIcon.classList.remove('fa-spin');
+                        showNotification("Sync Failed", err.message);
+                    })
+                    .getRawSheetData(selectedDate);
+            } else {
+                // Mock execution setup matching standard user database snapshot
+                setTimeout(() => {
+                    syncIcon.classList.remove('fa-spin');
+                    const mockValues = [
+                        ["S.No", "Date", "Time", "BD ID", "Patient Name", "Age", "Gender", "Total Discount", "Total Price", "Med ID", "Med Short", "Med Full", "Qty", "Price"],
+                        ["1", "2026-06-17", "10:30 AM", "B1001", "ANIL KUMAR", "45", "Male", "10", "490", "MCD1001", "TEST1", "PARACETAMOL 650MG", "2", "30"],
+                        ["", "2026-06-17", "", "", "", "", "", "", "", "MCD1002", "TEST2", "AMOXICILLIN 500MG", "3", "470"],
+                        ["2", "2026-06-17", "11:15 AM", "B1002", "K. SREELATHA", "38", "Female", "0", "150", "MCD1003", "TEST3", "CETIRIZINE 10MG", "5", "150"],
+                        ["3", "2026-06-15", "09:00 AM", "B1003", "B. RAMA SUBBIAH", "62", "Male", "5", "115", "MCD1001", "TEST1", "PARACETAMOL 650MG", "1", "15"],
+                        ["", "2026-06-15", "", "", "", "", "", "", "", "MCD1004", "TEST4", "PANTOPRAZOLE 40MG", "2", "105"]
+                    ];
+                    processDataAndPopulate(mockValues, selectedDate);
+                }, 450);
+            }
+        }
+
+        function processDataAndPopulate(rawData, selectedDate) {
+            const allParsed = parseSpreadsheetRows(rawData);
+            
+            // Format selectedDate for comparison if needed
+            const formattedSelectedStr = selectedDate ? selectedDate.trim() : "";
+
+            // Filter invoices exactly by selected date
+            invoiceList = allParsed.filter(inv => {
+                if (!formattedSelectedStr) return true;
+                let parsedInvDate = "";
+                if (inv.date) {
+                    if (inv.date.includes("T")) {
+                        parsedInvDate = inv.date.split("T")[0];
+                    } else {
+                        // Attempt standard date parsing conversion
+                        const d = new Date(inv.date);
+                        if (!isNaN(d.getTime())) {
+                            const y = d.getFullYear();
+                            const m = String(d.getMonth() + 1).padStart(2, '0');
+                            const r = String(d.getDate()).padStart(2, '0');
+                            parsedInvDate = `${y}-${m}-${r}`;
+                        } else {
+                            parsedInvDate = inv.date;
+                        }
+                    }
+                }
+                return parsedInvDate.includes(formattedSelectedStr) || inv.date.includes(formattedSelectedStr);
+            });
+
+            medicineSummaries = {};
+            let selectedDateRevenue = 0, selectedDateQty = 0, selectedDateDiscounts = 0;
+
+            invoiceList.forEach(invoice => {
+                selectedDateRevenue += invoice.totalPrice;
+                selectedDateDiscounts += invoice.discount;
+
+                invoice.medicines.forEach(med => {
+                    selectedDateQty += med.qty;
+                    const key = med.medId;
+                    if (!medicineSummaries[key]) {
+                        medicineSummaries[key] = { id: med.medId, shortName: med.shortName, fullName: med.fullName, totalQty: 0, totalValue: 0 };
+                    }
+                    medicineSummaries[key].totalQty += med.qty;
+                    medicineSummaries[key].totalValue += med.price;
+                });
+            });
+
+            // Update KPI Displays to represent currently selected date metrics
+            document.getElementById('stat-revenue').innerText = "₹" + selectedDateRevenue.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+            document.getElementById('stat-qty').innerText = selectedDateQty.toLocaleString('en-IN') + " units";
+            document.getElementById('stat-invoices').innerText = invoiceList.length + " Bills";
+            document.getElementById('stat-discounts').innerText = "₹" + selectedDateDiscounts.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+
+            renderPatientInvoiceTable(invoiceList);
+            renderMedicineSummariesTable(medicineSummaries);
+        }
+
+        function renderPatientInvoiceTable(invoices) {
+            const tableBody = document.getElementById('invoice-table-body');
+            document.getElementById('invoice-count').innerText = invoices.length + " Records";
+
+            if (invoices.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="6" class="text-center text-gray-400 py-6">No matching patient records found for selected date.</td></tr>`;
+                return;
+            }
+
+            let rows = '';
+            invoices.forEach(inv => {
+                rows += `
+                    <tr class="hover:bg-blue-50/50 transition cursor-pointer" onclick="openInvoiceModal('${inv.id}')">
+                        <td class="font-extrabold text-blue-900 py-2 px-3">${inv.id}</td>
+                        <td class="text-slate-500 py-2 px-3">${inv.time || '-'}</td>
+                        <td class="font-bold text-slate-700 py-2 px-3">${inv.name}</td>
+                        <td class="py-2 px-3">
+                            <span class="text-[0.6rem] px-1.5 py-0.5 bg-slate-100 rounded text-slate-600">${inv.age} Yrs</span>
+                            <span class="text-[0.6rem] px-1.5 py-0.5 ${inv.gender === 'Female' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700'} rounded ml-0.5">${inv.gender}</span>
+                        </td>
+                        <td class="text-right text-amber-700 font-bold py-2 px-3">₹${inv.discount.toFixed(2)}</td>
+                        <td class="text-right text-slate-900 font-black py-2 px-3 bg-slate-50/40">₹${inv.totalPrice.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+            tableBody.innerHTML = rows;
+        }
+
+        function renderMedicineSummariesTable(medMap) {
+            const tableBody = document.getElementById('med-table-body');
+            const items = Object.values(medMap);
+            document.getElementById('med-count').innerText = items.length + " Meds";
+
+            if (items.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="3" class="text-center text-gray-400 py-6">No medicine sales recorded.</td></tr>`;
+                return;
+            }
+
+            let rows = '';
+            items.forEach(med => {
+                rows += `
+                    <tr class="hover:bg-slate-100/50 transition">
+                        <td class="py-2 px-3">
+                            <span class="text-[0.55rem] font-bold text-slate-400 block">${med.id}</span>
+                            <span class="font-bold text-slate-700 block text-xs">${med.fullName}</span>
+                            <span class="text-[0.6rem] text-slate-400 italic">(${med.shortName})</span>
+                        </td>
+                        <td class="text-center py-2 px-3">
+                            <span class="bg-blue-50 text-blue-900 px-1.5 py-0.5 rounded font-black text-xs">${med.totalQty}</span>
+                        </td>
+                        <td class="text-right font-black text-blue-900 py-2 px-3">₹${med.totalValue.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+            tableBody.innerHTML = rows;
+        }
+
+        function openInvoiceModal(invoiceId) {
+            const invoice = invoiceList.find(i => i.id === invoiceId);
+            if (!invoice) return;
+
+            document.getElementById('modal-invoice-id').innerText = `Receipt - ${invoice.id}`;
+            document.getElementById('modal-patient-name').innerText = invoice.name;
+            document.getElementById('modal-patient-demo').innerText = `${invoice.age} Yrs / ${invoice.gender}`;
+            document.getElementById('modal-patient-discount').innerText = `₹${invoice.discount.toFixed(2)}`;
+            document.getElementById('modal-patient-total').innerText = `₹${invoice.totalPrice.toFixed(2)}`;
+
+            const detailsTable = document.getElementById('modal-medicine-list');
+            let rows = '';
+            if (invoice.medicines.length === 0) {
+                rows = `<tr><td colspan="4" class="text-center py-4 text-gray-400 text-[0.65rem]">No details.</td></tr>`;
+            } else {
+                invoice.medicines.forEach(m => {
+                    rows += `
+                        <tr class="text-[0.65rem]">
+                            <td class="py-1 px-2 font-semibold text-slate-500">${m.medId}</td>
+                            <td class="py-1 px-2 font-bold text-slate-700">${m.fullName} <span class="text-[0.55rem] text-slate-400">(${m.shortName})</span></td>
+                            <td class="py-1 px-2 text-center font-bold text-blue-900">${m.qty}</td>
+                            <td class="py-1 px-2 text-right font-bold text-slate-800">₹${m.price.toFixed(2)}</td>
+                        </tr>
+                    `;
+                });
+            }
+            detailsTable.innerHTML = rows;
+            document.getElementById('invoice-modal').classList.remove('hidden');
+        }
+
+        function filterInvoices() {
+            const query = document.getElementById('directory-search').value.toLowerCase().trim();
+            const filtered = invoiceList.filter(inv => inv.id.toLowerCase().includes(query) || inv.name.toLowerCase().includes(query) || inv.gender.toLowerCase().includes(query));
+            renderPatientInvoiceTable(filtered);
+        }
+
+        function filterMedicines() {
+            const query = document.getElementById('med-search').value.toLowerCase().trim();
+            const filtered = {};
+            Object.keys(medicineSummaries).forEach(key => {
+                const med = medicineSummaries[key];
+                if (med.id.toLowerCase().includes(query) || med.fullName.toLowerCase().includes(query) || med.shortName.toLowerCase().includes(query)) filtered[key] = med;
+            });
+            renderMedicineSummariesTable(filtered);
+        }
+
+        function clearAllData() {
+            invoiceList = []; medicineSummaries = {};
+            document.getElementById('directory-search').value = '';
+            document.getElementById('med-search').value = '';
+            document.getElementById('stat-revenue').innerText = "₹0.00";
+            document.getElementById('stat-qty').innerText = "0 units";
+            document.getElementById('stat-invoices').innerText = "0 Bills";
+            document.getElementById('stat-discounts').innerText = "₹0.00";
+            document.getElementById('invoice-table-body').innerHTML = `<tr><td colspan="6" class="text-center text-gray-400 py-8"><i class="fas fa-broom text-lg mb-1 block"></i><span>Clean view. Tap Sync or select a date.</span></td></tr>`;
+            document.getElementById('med-table-body').innerHTML = `<tr><td colspan="3" class="text-center text-gray-400 py-6">No records loaded.</td></tr>`;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>VSR-RECEIPT (80mm Thermal)</title>
+
+    <link rel="icon" type="image/png" href="https://dsvsrh.github.io/DRSVR-IMG-2026/IMG_02_FEVICON_ICON.png">
+
+    <link rel="apple-touch-icon" href="https://dsvsrh.github.io/DRSVR-IMG-2026/IMG_02_FEVICON_ICON.png">
+
+    <link rel="manifest" href="/manifest.json">
+
+    <meta name="theme-color" content="#1e3a8a">
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@300;400;700;900&display=swap" rel="stylesheet">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Roboto Slab', serif; font-size: 11px; }
+        body { background-color: #e9f0f5; display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        .web-page-header { width: 100%; height: 18mm; background: #ffffff; color: #1a252f; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 2px solid #1a252f; box-shadow: 0 2px 8px rgba(0,0,0,0.05); flex-shrink: 0; }
+        .web-header-left { display: flex; align-items: center; }
+        .web-logo { height: 13mm; margin-right: 12px; border-radius: 4px; }
+        .web-h-name { font-size: 13px; font-weight: 900;    color:#228BE6; line-height: 1.2; }
+        .web-h-title { font-size: 9px; font-weight: 700; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px; color:#228BE6; }
+        .web-header-right { display: flex; align-items: center; gap: 15px; }
+        .header-icon-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: #f1f5f9; border: 1.5px solid #e2e8f0; border-radius: 6px; cursor: pointer; color: #1a252f; transition: all 0.2s; }
+        .header-icon-btn:hover { background: #e2e8f0; color: #000; transform: translateY(-1px); }
+        .header-icon-btn svg { width: 16px; height: 16px; fill: currentColor; }
+        .header-icon-btn.btn-logout-icon { background: #fef2f2; border-color: #fee2e2; color: #ef4444; }
+        .header-icon-btn.btn-logout-icon:hover { background: #fee2e2; color: #dc2626; }
+        .doctor-badge { display: flex; flex-direction: column; align-items: flex-end; font-size: 10px; line-height: 1.3; border-right: 1.5px solid #e2e8f0; padding-right: 15px; }
+        .dr-name-label { font-weight: 900; color: #1a252f; text-transform: uppercase; }
+        .dr-live-status { font-size: 9px; color: #64748b; display: flex; align-items: center; gap: 4px; margin-bottom: 2px; }
+        .green-pulse-dot { width: 6px; height: 6px; background-color: #2ecc71; border-radius: 50%; display: inline-block; animation: pulse-green 1.2s infinite; }
+        @keyframes pulse-green { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 4px rgba(46, 204, 113, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); } }
+        .main-content-wrapper { flex-grow: 1; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px 0; position: relative; }
+        .main-content-wrapper.dashboard-active { justify-content: flex-start !important; }
+        #login-section { background: rgba(255, 255, 255, 0.95); padding: 25px 30px; border-radius: 12px; width: 350px; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.2); border-top: 5px solid #1a252f; z-index: 999; }
+        #login-section h2 { font-size: 14px; margin-bottom: 15px; color: #1a252f; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase; }
+        .login-field { margin-bottom: 12px; text-align: left; position: relative; }
+        .login-field label { font-size: 8px; font-weight: 800; display: block; margin-bottom: 3px; color: #444; text-transform: uppercase; }
+        .login-field svg { position: absolute; left: 10px; bottom: 8px; width: 14px; height: 14px; fill: #64748b; }
+        .login-field input { width: 100%; padding: 7px 10px 7px 32px; border: 1.5px solid #dfe6e9; border-radius: 6px; font-size: 11px; outline: none; transition: border-color 0.2s; }
+        .login-field input:focus { border-color: #1a252f; }
+        .btn-login { background-color: #1a252f; color: white; width: 100%; height: 34px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; border: none; border-radius: 6px; font-weight: 700; text-transform: uppercase; font-size: 11px; transition: background 0.2s; }
+        .spinner { width: 14px; height: 14px; border: 2px solid #ffffff; border-top-color: transparent; border-radius: 50%; display: none; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        #app-dashboard { width: 100%; display: none; flex-direction: column; align-items: center; }
+        .input-panel { background: #ffffff; padding: 12px 16px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); width: 100%; max-width: 1000px; margin-bottom: 12px; border-top: 3px solid #1a252f; }
+        .input-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 10px; }
+        .field { display: flex; flex-direction: column; position: relative; }
+        .field label { font-size: 8px; font-weight: 800; color: #2c3e50; margin-bottom: 3px; text-transform: uppercase; }
+        .field input, .field select { padding: 4px 8px; border: 1.5px solid #dfe6e9; border-radius: 5px; outline: none; font-size: 11px; height: 28px; transition: border-color 0.15s; }
+        .field input:focus, .field select:focus { border-color: #1a252f; }
+        .discount-apply-row { display: flex; gap: 5px; align-items: center; }
+        .btn-apply-discount { background: #27ae60; color: white; border: none; border-radius: 5px; width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 13px; transition: background 0.15s; }
+        .btn-apply-discount:hover { background: #219653; }
+        .discount-applied-badge { display: none; font-size: 8px; font-weight: 800; color: #27ae60; text-transform: uppercase; margin-top: 2px; }
+        .page-boundary { width: 80mm; min-height: auto; height: auto; background: #ffffff; padding: 3mm 4mm; display: flex; flex-direction: column; overflow: hidden; position: relative; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.12); border: 1px dashed #94a3b8; border-radius: 2px; }
+        .receipt-container { width: 100%; height: auto; background: #ffffff; position: relative; display: flex; flex-direction: column; box-sizing: border-box; }
+        .watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-35deg); font-size: 32px; font-weight: 900; color: rgba(0, 0, 0, 0.03); white-space: nowrap; pointer-events: none; z-index: 0; text-transform: uppercase; }
+        .receipt-header { display: flex; flex-direction: column; align-items: center; text-align: center; border-bottom: 1px dashed #000; padding-bottom: 2mm; margin-bottom: 2mm; position: relative; z-index: 1; }
+        .hospital-name { font-size: 11px; font-weight: 900; color: #000; line-height: 1.2; text-transform: uppercase; margin-bottom: 1px; }
+        .hospital-address { font-size: 8px; font-weight: 700; color: #000; text-transform: uppercase; letter-spacing: 0.5px; }
+        .receipt-title { font-size: 9px; font-weight: 700; color: #000; margin-top: 2px; border: 1px solid #000; padding: 1px 6px; display: inline-block; text-transform: uppercase; }
+        .patient-info-grid { display: flex; flex-direction: column; gap: 1.5px; font-size: 8.5px; margin-bottom: 2mm; padding-bottom: 1.5mm; border-bottom: 1px dashed #000; line-height: 1.2; }
+        .patient-info-row { display: flex; justify-content: space-between; }
+        .medicine-area { width: 100%; display: flex; flex-direction: column; position: relative; z-index: 1; margin-bottom: 2mm; }
+        .medicine-table { width: 100%; border-collapse: collapse; font-size: 8.5px; table-layout: fixed; }
+        .medicine-table th { border-bottom: 1px solid #000; text-align: left; padding: 1.5px 1px; font-size: 8px; font-weight: 900; text-transform: uppercase; }
+        .medicine-table td { padding: 2.5px 1px; vertical-align: middle; border-bottom: 0.5px solid #f1f5f9; font-weight: 700; color: #000; }
+        .receipt-qty-editor { border: 1px solid #cbd5e1; border-radius: 3px; padding: 1px; font-size: 8.5px; font-weight: bold; width: 32px; text-align: center; background: white; }
+        .btn-receipt-del { background: #e74c3c; color: white; padding: 1px 4px; border: none; border-radius: 3px; cursor: pointer; font-size: 7.5px; font-weight: bold; text-transform: uppercase; }
+        .btn-receipt-del:hover { background: #c0392b; }
+        .total-section { text-align: right; padding-top: 2mm; border-top: 1px dashed #000; margin-top: auto; position: relative; z-index: 1; }
+        .summary-line { font-size: 8.5px; font-weight: 700; color: #000; display: block; line-height: 1.3; }
+        .pay-label { font-weight: 900; font-size: 10px; color: #000; border-top: 1px dashed #000; display: inline-block; padding-top: 2px; margin-top: 2px; text-transform: uppercase; }
+        .receipt-footer-note { text-align: center; font-size: 7px; font-style: italic; color: #333; margin-top: 3mm; border-top: 1px dashed #000; padding-top: 1.5mm; }
+        .control-actions-wrapper { display: flex; gap: 8px; justify-content: center; margin-top: 4px; margin-bottom: 12px; }
+        .btn { padding: 8px 18px; border: none; border-radius: 5px; cursor: pointer; font-weight: 700; text-transform: uppercase; font-size: 10.5px; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; }
+        .btn-add { background-color: #27ae60; color: white; }
+        .btn-add:hover { background-color: #219653; }
+        .btn-save-draft { background-color: #2980b9; color: white; }
+        .btn-save-draft:hover { background-color: #2471a3; }
+        .btn-print { background-color: #2c3e50; color: white; opacity: 0.6; cursor: not-allowed; }
+        .btn-print.active { opacity: 1; cursor: pointer; }
+        .btn-print.active:hover { background-color: #1a252f; }
+        .btn-clear { background-color: #7f8c8d; color: white; }
+        .btn-clear:hover { background-color: #95a5a6; }
+        .return-panel { background: #ffffff; padding: 14px 18px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); width: 100%; max-width: 1000px; margin-top: 12px; border-top: 3px solid #c0392b; border-left: 1px solid #f5e6e6; border-right: 1px solid #f5e6e6; }
+        .return-title { font-size: 11px; font-weight: 900; color: #c0392b; text-transform: uppercase; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; letter-spacing: 0.5px; }
+        .return-title svg { width: 14px; height: 14px; fill: currentColor; }
+        .return-grid { display: grid; grid-template-columns: 2fr 1fr 1.5fr auto; gap: 12px; align-items: flex-end; }
+        .btn-return { background-color: #c0392b; color: white; padding: 0 16px; height: 28px; border: none; border-radius: 5px; cursor: pointer; font-weight: 700; text-transform: uppercase; font-size: 10px; transition: background 0.15s; display: flex; align-items: center; justify-content: center; gap: 4px; }
+        .btn-return:hover { background-color: #a93226; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 10000; }
+        .modal-box { background: white; padding: 18px 24px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.25); max-width: 380px; width: 90%; text-align: center; border-top: 4px solid #1a252f; }
+        .modal-box.danger-modal { border-top-color: #c0392b; }
+        .modal-box h3 { margin-bottom: 8px; font-size: 14px; color: #2c3e50; font-weight: 900; }
+        .modal-box p { font-size: 12px; color: #555; margin-bottom: 15px; line-height: 1.4; }
+        .modal-btn-group { display: flex; justify-content: center; gap: 10px; }
+        .modal-btn { padding: 6px 14px; border: none; border-radius: 4px; cursor: pointer; font-weight: 700; font-size: 10.5px; text-transform: uppercase; }
+        .modal-btn-confirm { background-color: #1a252f; color: white; }
+        .modal-box.danger-modal .modal-btn-confirm { background-color: #c0392b; }
+        .modal-btn-cancel { background-color: #95a5a6; color: white; }
+        .web-footer { width: 100%; background: #ffffff; padding: 12px 0; text-align: center; border-top: 1px solid #ddd; margin-top: auto; flex-shrink: 0; }
+        .footer-text { font-size: 9px; color: #333; font-weight: 600; }
+        .no-print { display: block; }
+        @media print { @page { size: 80mm auto; margin: 0; } body { background: #ffffff !important; margin: 0 !important; padding: 0 !important; } .web-page-header, .web-footer, .input-panel, .control-actions-wrapper, .return-panel, .modal-overlay, .no-print { display: none !important; } .page-boundary { width: 80mm !important; height: auto !important; min-height: auto !important; padding: 2mm 3mm !important; margin: 0 !important; background: white !important; box-shadow: none !important; display: block !important; position: absolute; top: 0; left: 0; border: none !important; } .receipt-container { border: none !important; width: 100% !important; height: auto !important; min-height: auto !important; margin: 0 !important; padding: 0 !important; background: white !important; } .total-section { margin-bottom: 2mm !important; } .receipt-qty-editor { border: none !important; background: transparent !important; width: auto !important; text-align: center !important; padding: 0 !important; } .receipt-footer-note { margin-top: 2mm !important; } }
+    </style>
+</head>
+<body>
+
+    <!-- 02-HEADER -->
+    <header class="web-page-header">
+        <div class="web-header-left">
+            <img src="https://dsvsrh.github.io/DRSVR-IMG-2026/IMG_01_HEDER_LOGO_MAIN.png" alt="SVR Main Logo" class="web-logo">
+            <div class="web-header-info">
+                <div class="web-h-name">Dr. S. Venkata Subba Reddy Multispecialty Hospital</div>
+                <div class="web-h-title">Medical Receipt System (80mm Output)</div>
+            </div>
+        </div>
+        <div class="web-header-right">
+            <div id="logged-user-display" class="doctor-badge" style="display: none;">
+                <div class="dr-live-status">
+                    <span class="green-pulse-dot"></span>
+                    <span id="live-time-display">00:00:00 AM</span> | <span id="live-date-display">00/00/0000</span>
+                </div>
+                <div id="dr-display-name" class="dr-name-label">Active Operator</div>
+            </div>
+            <div id="header-controls" style="display: none; gap: 8px;" class="no-print">
+                <button class="header-icon-btn" onclick="loadMedicineDatabase()" title="Reload Medicines Sheet">
+                    <svg viewBox="0 0 24 24"><path d="M19 8l-4 4h3c0 3.31-2.69 6-6 6-1.01 0-1.97-.25-2.8-.7l-1.46 1.46C8.97 19.54 10.43 20 12 20c4.42 0 8-3.58 8-8h3l-4-4zM6 12c0-3.31 2.69-6 6-6 1.01 0 1.97.25 2.8.7l1.46-1.46C15.03 4.46 13.57 4 12 4c-4.42 0-8 3.58-8 8H1l4 4 4-4H6z"/></svg>
+                </button>
+                <button class="header-icon-btn btn-logout-icon" onclick="logoutSession()" title="Logout Session">
+                    <svg viewBox="0 0 24 24"><path d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C18.43 7.91 19 9.9 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.1.57-4.09 1.59-5.41L5.17 5.17C3.79 6.88 3 9.3 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.7-.79-5.12-2.17-6.83z"/></svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 03-WORKSPACE -->
+    <div class="main-content-wrapper" id="content-wrapper">
+        <div id="login-section">
+            <h2>SYSTEM LOGIN</h2>
+            <div class="login-field">
+                <label>Login ID</label>
+                <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                <input type="text" id="log-id" class="login-nav-input" placeholder="ID Number" oninput="this.value = this.value.toUpperCase()">
+            </div>
+            <div class="login-field">
+                <label>Password</label>
+                <svg viewBox="0 0 24 24"><path d="M12.63 2.17c-.7-.7-1.84-.7-2.55 0L3.13 9.12c-.7.7-.7 1.84 0 2.55l6.95 6.95c.7.7 1.84.7 2.55 0l6.95-6.95c.7-.7.7-1.84 0-2.55l-6.95-6.95zM12 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
+                <input type="password" id="log-pass" class="login-nav-input" placeholder="Password">
+            </div>
+            <button class="btn-login" id="login-btn" onclick="initiateSecureAuthenticationSequence()">
+                <span class="spinner" id="login-spinner"></span>
+                <span id="login-btn-text">Sign In Now</span>
+            </button>
+            <p id="log-msg" style="font-size:10px; margin-top:8px; font-weight: 700; line-height: 1.3;"></p>
+        </div>
+
+        <!-- 04-INPUT PANEL -->
+        <div id="app-dashboard">
+            <div class="input-panel" id="input-form">
+                <div class="input-group">
+                    <div class="field">
+                        <label>Patient Name</label>
+                        <input type="text" id="in-pname" class="nav-input" placeholder="Full Name" tabindex="1" oninput="updatePatientReceiptDisplay()">
+                    </div>
+                    <div class="field">
+                        <label>Age</label>
+                        <input type="number" id="in-page" class="nav-input" placeholder="Age" tabindex="2" oninput="updatePatientReceiptDisplay()">
+                    </div>
+                    <div class="field">
+                        <label>Gender</label>
+                        <select id="in-pgender" class="nav-input" tabindex="3" onchange="updatePatientReceiptDisplay()">
+                            <option value="" disabled selected>Select</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="input-group" style="border-top: 1px solid #f1f2f6; padding-top: 8px;">
+                    <div class="field">
+                        <label>Short Name / Code</label>
+                        <input type="text" id="in-mshort" class="nav-input" placeholder="Short ID" tabindex="4" list="short-list-options">
+                        <datalist id="short-list-options"></datalist>
+                    </div>
+                    <div class="field">
+                        <label>Medicine Description</label>
+                        <input type="text" id="in-mfull" class="nav-input" placeholder="Medicine Name" tabindex="5" list="full-list-options">
+                        <datalist id="full-list-options"></datalist>
+                    </div>
+                    <div class="field">
+                        <label>Tabs Qty</label>
+                        <input type="number" id="in-mqty" class="nav-input" value="1" tabindex="6">
+                    </div>
+                    <div class="field">
+                        <label>Rate (Fixed from Sheet)</label>
+                        <input type="text" id="in-mprice" class="nav-input" value="2.00" disabled style="background:#f8f9fa; color:#888;">
+                    </div>
+                    <div class="field">
+                        <label>Apply Bill Discount (%)</label>
+                        <div class="discount-apply-row">
+                            <input type="number" id="in-mdisc" class="nav-input" value="0" tabindex="7" placeholder="%" style="flex-grow: 1;">
+                            <button class="btn-apply-discount" onclick="applyVerifiedDiscountPercent()" title="Verify and Apply Discount To Bill">✓</button>
+                        </div>
+                        <span id="discount-status" class="discount-applied-badge">Discount Applied</span>
+                    </div>
+                </div>
+                <div style="display:flex; justify-content: flex-end; margin-top: 4px;">
+                    <button class="btn btn-add" tabindex="8" onclick="addNewMedicineEntry()">Add</button>
+                </div>
+            </div>
+
+            <!-- 05-80MM RECEIPT CONTAINER -->
+            <div class="page-boundary" id="pdf-area">
+                <div class="receipt-container" id="receipt-content">
+                    <div class="watermark">SVR Hospital</div>
+                    <div class="receipt-header">
+                        <div class="hospital-name">Dr. S. Venkata Subba Reddy Multispecialty Hospital</div>
+                        <div class="hospital-address">Allagadda</div>
+                        <div class="receipt-title">Medicine Receipt</div>
+                    </div>
+                    <div class="patient-info-grid">
+                        <div class="patient-info-row">
+                            <span><strong>Patient:</strong> <span id="out-pname">-</span></span>
+                            <span><strong>Age/Gen:</strong> <span id="out-page">-</span>/<span id="out-pgender">-</span></span>
+                        </div>
+                    </div>
+                    <div class="medicine-area">
+                        <table class="medicine-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 42px;">ID</th>
+                                    <th>Medicine Description</th>
+                                    <th style="width: 32px; text-align: center;">Qty</th>
+                                    <th style="width: 58px; text-align: right;">Amount</th>
+                                    <th style="width: 30px; text-align: right;" class="no-print">Act</th>
+                                </tr>
+                            </thead>
+                            <tbody id="medicine-list">
+                                <tr>
+                                    <td colspan="5" style="text-align: center; color: #777; padding: 15px 0;">Receipt empty. Enter details above.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="total-section" id="financial-summary-block">
+                        <span class="summary-line">Gross Total: ₹<span id="gross-total">0.00</span></span>
+                        <span class="summary-line" id="discount-display-note" style="display: none;">No discount applied</span>
+                        <span class="pay-label">YOU PAY ONLY: ₹<span id="net-payable-total">0.00</span></span>
+                    </div>
+                    <div class="receipt-footer-note">Allagadda, Nandyal District, A.P.<br>Note: Computer generated medical record.</div>
+                </div>
+            </div>
+
+            <!-- 06-CONTROL ACTIONS -->
+            <div class="control-actions-wrapper">
+                <button class="btn btn-save-draft" id="btn-save" onclick="triggerSaveTransaction()">Save</button>
+                <button class="btn btn-print" id="print-receipt-btn" onclick="triggerReceiptPrintProcess()">Print</button>
+                <button class="btn btn-clear" id="btn-clear" onclick="triggerSystemResetRequest()">Clear</button>
+            </div>
+
+            <!-- 07-RETURN PANEL -->
+            <div class="return-panel">
+                <div class="return-title">
+                    <svg viewBox="0 0 24 24"><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/></svg>
+                    <span>SVR Medicine Return and Adjustment Console</span>
+                </div>
+                <div class="return-grid">
+                    <div class="field">
+                        <label>Return MCD / Code</label>
+                        <input type="text" id="ret-mcd" class="ret-nav-input" placeholder="e.g. SM002" list="short-list-options">
+                    </div>
+                    <div class="field">
+                        <label>Quantity to Return</label>
+                        <input type="number" id="ret-qty" class="ret-nav-input" value="1" min="1">
+                    </div>
+                    <div class="field">
+                        <label>Refund Amount (INR)</label>
+                        <input type="number" id="ret-amt" class="ret-nav-input" placeholder="e.g. 24.00" step="0.01">
+                    </div>
+                    <button class="btn-return" onclick="triggerMedicineReturnProcess()">
+                        <span>Return</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 08-MODAL -->
+    <div id="modal-container" class="modal-overlay">
+        <div class="modal-box" id="modal-box-inner">
+            <h3 id="modal-title">System Prompt</h3>
+            <p id="modal-message">Are you sure you want to perform this action?</p>
+            <div class="modal-btn-group">
+                <button class="modal-btn modal-btn-confirm" id="modal-confirm-action">Confirm</button>
+                <button class="modal-btn modal-btn-cancel" onclick="closeCustomDialog()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 09-FOOTER -->
+    <footer class="web-footer">
+        <div class="footer-text">© 2026 All Rights Reserved | Dr. S. Venkata Subba Reddy Multispecialty Hospital | Architected by Sri Veda Org.</div>
+    </footer>
+
+    <script>
+        const CLOUD_URL = "https://script.google.com/macros/s/AKfycbx3VsgFwT2zpDTHl3M-CGEnGu0gIIHRTFtGiOcDgLUF7ZEkELAAOS3btUJa7eopru2lJw/exec"; 
+        let activeInventoryArray = []; 
+        let dbMedicines = []; 
+        let currentConfirmAction = null; 
+        let liveTimeInterval_99 = null; 
+        let sessionID = ""; 
+        let sessionPass = "";
+        let transactionSaved = false;
+        let verifiedDiscountPercentage = 0;
+
+        const runLiveTimeClockSequence_99 = () => { liveTimeInterval_99 = setInterval(() => { const now = new Date(); document.getElementById('live-time-display').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }); document.getElementById('live-date-display').innerText = now.toLocaleDateString('en-GB'); }, 1000); };
+        const initiateSecureAuthenticationSequence = () => { const id = document.getElementById('log-id').value.trim(); const pass = document.getElementById('log-pass').value.trim(); if (!id || !pass) { updateAuthStatus("#e74c3c", "Please enter Login ID and Password."); return; } sessionID = id; sessionPass = pass; updateAuthStatus("#3498db", "Connecting to SVR Hospital Access Registry..."); toggleLoginLoading(true); fetch(CLOUD_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ action: "auth", uid: id, pwd: pass }) }).then(res => res.json()).then(data => { toggleLoginLoading(false); if (data.success) { updateAuthStatus("#2ecc71", "Access Approved! Loading Dashboard..."); setTimeout(() => { transitionToDashboard(data.name || "Authorized User"); }, 800); } else { updateAuthStatus("#e74c3c", "Error: " + (data.msg || data.message || "Failed credentials verification.")); } }).catch(err => { toggleLoginLoading(false); updateAuthStatus("#e67e22", "Cloud Connection Error!"); console.error(err); }); };
+        const toggleLoginLoading = (isLoading) => { document.getElementById('login-spinner').style.display = isLoading ? 'inline-block' : 'none'; document.getElementById('login-btn-text').style.display = isLoading ? 'none' : 'inline'; document.getElementById('login-btn').disabled = isLoading; };
+        const transitionToDashboard = (name) => { document.getElementById('login-section').style.display = 'none'; document.getElementById('app-dashboard').style.display = 'flex'; document.getElementById('content-wrapper').classList.add('dashboard-active'); document.getElementById('dr-display-name').innerText = "Active: " + name; document.getElementById('logged-user-display').style.display = 'block'; document.getElementById('header-controls').style.display = 'flex'; runLiveTimeClockSequence_99(); loadMedicineDatabase(); invalidateSaveState(); };
+        const logoutSession = () => { showCustomDialog("Logout Session", "Are you sure you want to log out of SVR Medical Receipt System?", () => { clearInterval(liveTimeInterval_99); document.getElementById('log-id').value = ''; document.getElementById('log-pass').value = ''; document.getElementById('logged-user-display').style.display = 'none'; document.getElementById('header-controls').style.display = 'none'; document.getElementById('app-dashboard').style.display = 'none'; document.getElementById('content-wrapper').classList.remove('dashboard-active'); document.getElementById('login-section').style.display = 'block'; updateAuthStatus("#333333", "Session closed successfully."); }); };
+        const loadMedicineDatabase = () => { fetch(CLOUD_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ action: "getMedicines" }) }).then(res => res.json()).then(resData => { if (resData.success) { dbMedicines = resData.medicines || resData.data || resData.records || []; populateMedicineDatalists(); } }).catch(err => { console.error("Error loading database catalogue:", err); }); };
+        const getMedicineFields = (med) => { if (Array.isArray(med)) { return { mcd: med[1] || '', short: med[2] || '', name: med[3] || '', price: parseFloat(med[8] || 2.00) }; } else if (med && typeof med === 'object') { return { mcd: med.mcd || med[1] || '', short: med.short || med[2] || '', name: med.name || med[3] || '', price: parseFloat(med.price || med[8] || 2.00) }; } return { mcd: '', short: '', name: '', price: 2.00 }; };
+        const populateMedicineDatalists = () => { const shortDatalist = document.getElementById('short-list-options'); const fullDatalist = document.getElementById('full-list-options'); shortDatalist.innerHTML = ''; fullDatalist.innerHTML = ''; dbMedicines.forEach(med => { const fields = getMedicineFields(med); if (fields.short) { const shortOpt = document.createElement('option'); shortOpt.value = fields.short; shortOpt.textContent = `${fields.name} (₹${fields.price.toFixed(2)})`; shortDatalist.appendChild(shortOpt); } if (fields.name) { const fullOpt = document.createElement('option'); fullOpt.value = fields.name; fullOpt.textContent = `Code: ${fields.short} (₹${fields.price.toFixed(2)})`; fullDatalist.appendChild(fullOpt); } }); };
+        const handleShortInput = function() { const val = this.value.trim().toUpperCase(); if (!val) return; const matched = dbMedicines.find(m => { const f = getMedicineFields(m); return f.short.toUpperCase() === val || f.mcd.toUpperCase() === val; }); if (matched) { const f = getMedicineFields(matched); document.getElementById('in-mfull').value = f.name; document.getElementById('in-mprice').value = f.price.toFixed(2); } else { document.getElementById('in-mprice').value = "2.00"; } };
+        document.getElementById('in-mshort').addEventListener('input', handleShortInput);
+        document.getElementById('in-mshort').addEventListener('change', handleShortInput);
+        const handleFullInput = function() { const val = this.value.trim().toUpperCase(); if (!val) return; const matched = dbMedicines.find(m => { const f = getMedicineFields(m); return f.name.toUpperCase() === val; }); if (matched) { const f = getMedicineFields(matched); document.getElementById('in-mshort').value = f.short; document.getElementById('in-mprice').value = f.price.toFixed(2); } };
+        document.getElementById('in-mfull').addEventListener('input', handleFullInput);
+        document.getElementById('in-mfull').addEventListener('change', handleFullInput);
+        const applyVerifiedDiscountPercent = () => { const discInput = document.getElementById('in-mdisc'); let val = parseFloat(discInput.value) || 0; if (val < 0) val = 0; if (val > 100) val = 100; discInput.value = val; verifiedDiscountPercentage = val; const badge = document.getElementById('discount-status'); if (val > 0) { badge.innerText = `Verified: ${val}% Discount`; badge.style.display = 'block'; } else { badge.style.display = 'none'; } calculateBillSummary(); };
+        const addNewMedicineEntry = () => { const shortVal = document.getElementById('in-mshort').value.trim(); const fullVal = document.getElementById('in-mfull').value.trim(); const qtyVal = parseFloat(document.getElementById('in-mqty').value) || 0; if (!fullVal) { showCustomDialog("Input Error", "Please provide a valid Medicine Name or Code before appending to receipt.", () => {}, false); return; } if (qtyVal <= 0) { showCustomDialog("Input Error", "Medicine Quantity must be 1 or higher.", () => {}, false); return; } let matched = dbMedicines.find(m => { const f = getMedicineFields(m); return f.name.toUpperCase() === fullVal.toUpperCase(); }); if (!matched) { matched = dbMedicines.find(m => { const f = getMedicineFields(m); return f.short.toUpperCase() === shortVal.toUpperCase(); }); } const fields = getMedicineFields(matched); const mcdVal = matched ? fields.mcd : "-"; const shortCode = matched ? fields.short : (shortVal || "-"); const finalPrice = matched ? fields.price : 2.00; const finalFullName = fullVal || (matched ? fields.name : ""); const existingIndex = activeInventoryArray.findIndex(item => item.full.toUpperCase() === finalFullName.toUpperCase()); if (existingIndex > -1) { activeInventoryArray[existingIndex].qty += qtyVal; } else { const item = { mcd: mcdVal, short: shortCode, full: finalFullName, qty: qtyVal, price: finalPrice }; activeInventoryArray.push(item); } calculateBillSummary(); clearMedicineInputs(); document.getElementById('in-mshort').focus(); invalidateSaveState(); };
+        const updateReceiptQtyValue = (index, value) => { const parsedVal = parseFloat(value) || 0; if (parsedVal <= 0) { activeInventoryArray.splice(index, 1); } else { activeInventoryArray[index].qty = parsedVal; } calculateBillSummary(); invalidateSaveState(); };
+        const removeReceiptItem = (index) => { activeInventoryArray.splice(index, 1); calculateBillSummary(); invalidateSaveState(); };
+        const calculateBillSummary = () => { const tbody = document.getElementById('medicine-list'); tbody.innerHTML = ''; if (activeInventoryArray.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #777; padding: 20px 0;">Receipt empty. Enter details above.</td></tr>'; document.getElementById('gross-total').innerText = "0.00"; document.getElementById('discount-display-note').style.display = "none"; document.getElementById('net-payable-total').innerText = "0.00"; return; } let gross = 0; activeInventoryArray.forEach((med, i) => { const line = med.qty * med.price; gross += line; const isDisabledStr = transactionSaved ? 'disabled' : ''; tbody.innerHTML += `<tr><td style="font-size: 8px; font-weight: 900;">${med.short}</td><td style="word-break: break-word; font-size: 8px; line-height: 1.1;">${med.full}</td><td style="text-align:center;"><input type="number" class="receipt-qty-editor" value="${med.qty}" onchange="updateReceiptQtyValue(${i}, this.value)" ${isDisabledStr}></td><td style="text-align:right;">₹${line.toFixed(2)}</td><td class="no-print" style="text-align:right;"><button class="btn-receipt-del" onclick="removeReceiptItem(${i})" ${isDisabledStr}>X</button></td></tr>`; }); const sav = gross * (verifiedDiscountPercentage / 100); const net = gross - sav; document.getElementById('gross-total').innerText = gross.toFixed(2); if (verifiedDiscountPercentage > 0) { document.getElementById('discount-display-note').innerHTML = `Discount Allowed: <span style="color:#000;font-weight:900;">${verifiedDiscountPercentage}%</span> (-₹${sav.toFixed(2)})`; document.getElementById('discount-display-note').style.display = "block"; } else { document.getElementById('discount-display-note').style.display = "none"; } document.getElementById('net-payable-total').innerText = net.toFixed(2); updatePatientReceiptDisplay(); };
+        const updatePatientReceiptDisplay = () => { document.getElementById('out-pname').innerText = document.getElementById('in-pname').value || "-"; document.getElementById('out-page').innerText = document.getElementById('in-page').value || "-"; document.getElementById('out-pgender').innerText = document.getElementById('in-pgender').value || "-"; };
+        const clearMedicineInputs = () => { document.getElementById('in-mshort').value = ''; document.getElementById('in-mfull').value = ''; document.getElementById('in-mqty').value = '1'; document.getElementById('in-mprice').value = '2.00'; };
+        const invalidateSaveState = () => { transactionSaved = false; const saveBtn = document.getElementById('btn-save'); saveBtn.style.display = 'inline-flex'; const printBtn = document.getElementById('print-receipt-btn'); printBtn.classList.remove('active'); printBtn.title = "Please save the transaction before printing."; lockFormPostSave(false); };
+        const validateSaveState = () => { transactionSaved = true; const saveBtn = document.getElementById('btn-save'); saveBtn.style.display = 'none'; const printBtn = document.getElementById('print-receipt-btn'); printBtn.classList.add('active'); printBtn.title = "Click to print the 80mm receipt."; lockFormPostSave(true); };
+        const toggleSaveButtonLoading = (isLoading) => { const btn = document.getElementById('btn-save'); if (isLoading) { btn.disabled = true; btn.innerHTML = `<span class="spinner" style="display:inline-block; margin-right:5px; border-color:#fff; border-top-color:transparent;"></span> Saving`; toggleAllFormInputs(true); } else { btn.disabled = false; btn.innerHTML = `Save`; toggleAllFormInputs(false); } };
+        const toggleAllFormInputs = (disabled) => { const inputs = document.querySelectorAll('#input-form input, #input-form select, #input-form button, .return-panel input, .return-panel button, .receipt-qty-editor, .btn-receipt-del, #btn-clear, #print-receipt-btn'); inputs.forEach(el => { if (el.id !== 'in-mprice') el.disabled = disabled; }); };
+        const lockFormPostSave = (lock) => { const inputFormEls = document.querySelectorAll('#input-form input, #input-form select, #input-form button'); inputFormEls.forEach(el => { if (el.id !== 'in-mprice') el.disabled = lock; }); const returnEls = document.querySelectorAll('.return-panel input, .return-panel button'); returnEls.forEach(el => { el.disabled = false; }); const receiptQtyInputs = document.querySelectorAll('.receipt-qty-editor'); receiptQtyInputs.forEach(el => { el.disabled = lock; }); const receiptDelButtons = document.querySelectorAll('.btn-receipt-del'); receiptDelButtons.forEach(el => { el.disabled = lock; }); };
+        const triggerSystemResetRequest = () => { showCustomDialog("Confirm Reset", "Are you sure you want to clear all patient fields, current medicine items, and reset the form?", () => { activeInventoryArray = []; verifiedDiscountPercentage = 0; document.getElementById('in-mdisc').value = 0; document.getElementById('discount-status').style.display = 'none'; invalidateSaveState(); calculateBillSummary(); document.querySelectorAll('#input-form input').forEach(el => { if (el.id === 'in-mqty') el.value = "1"; else if (el.id === 'in-mdisc') el.value = "0"; else if (el.id === 'in-mprice') el.value = "2.00"; else el.value = ""; }); document.getElementById('in-pgender').value = ""; updatePatientReceiptDisplay(); document.getElementById('in-pname').focus(); }, true); };
+        const triggerSaveTransaction = () => { if (activeInventoryArray.length === 0) { showCustomDialog("Unable to Save", "Your receipt is currently empty. Please add items to save.", () => {}, false); return; } const pname = document.getElementById('in-pname').value.trim() || "Unknown Patient"; const page = document.getElementById('in-page').value || "-"; const pgender = document.getElementById('in-pgender').value || "-"; const gross = parseFloat(document.getElementById('gross-total').innerText) || 0; const discount = verifiedDiscountPercentage; const net = parseFloat(document.getElementById('net-payable-total').innerText) || 0; const items = activeInventoryArray.map(m => ({ mcd: m.mcd, short: m.short, full: m.full, qty: m.qty, price: m.price })); const billData = { pname: pname, page: page, pgender: pgender, gross: gross, discount: discount, net: net, items: items }; toggleSaveButtonLoading(true); fetch(CLOUD_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ action: "saveBill", uid: sessionID, pwd: sessionPass, bill: billData }) }).then(res => res.json()).then(res => { toggleSaveButtonLoading(false); if (res.success) { validateSaveState(); showCustomDialog("Save Confirmed", "Transaction saved successfully. Receipt printing is now unlocked.", () => {}, false); if (res.medicines) { dbMedicines = res.medicines; populateMedicineDatalists(); } } else { showCustomDialog("Cloud Storage Error", "Failed to upload transaction: " + (res.error || res.msg), () => {}, true); } }).catch(err => { toggleSaveButtonLoading(false); console.error("Database connection failed:", err); showCustomDialog("Database Error", "Unable to connect to Google Sheets DB. Please verify network.", () => {}, true); }); };
+        const triggerReceiptPrintProcess = () => { if (!transactionSaved) { showCustomDialog("Printing Restricted", "Please save this transaction first to record it securely.", () => {}, false); return; } window.print(); };
+        const updateAuthStatus = (color, text) => { const el = document.getElementById('log-msg'); el.style.color = color; el.innerHTML = text; };
+        const triggerMedicineReturnProcess = () => { const medId = document.getElementById('ret-mcd').value.trim().toUpperCase(); const qty = parseFloat(document.getElementById('ret-qty').value) || 0; const amt = parseFloat(document.getElementById('ret-amt').value) || 0; if (!medId) { showCustomDialog("Input Error", "Please provide a valid Medicine ID (MCD) to process return.", () => {}); return; } if (qty <= 0 || amt < 0) { showCustomDialog("Input Error", "Return Quantity must be greater than 0, and Refund Amount cannot be negative.", () => {}); return; } let matched = dbMedicines.find(m => { const f = getMedicineFields(m); return f.mcd.toUpperCase() === medId || f.short.toUpperCase() === medId; }); const targetMcd = matched ? getMedicineFields(matched).mcd : medId; showCustomDialog("Confirm Return", `Are you sure you want to return quantity (${qty}) of Medicine Code "${targetMcd}" and refund ₹${amt.toFixed(2)}?`, () => { fetch(CLOUD_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ action: "returnMedicine", uid: sessionID, pwd: sessionPass, medId: targetMcd, qty: qty, amount: amt }) }).then(res => res.json()).then(res => { if (res.success) { showCustomDialog("Return Success", "Medicine returned successfully. Stock inventory refreshed.", () => { document.getElementById('ret-mcd').value = ''; document.getElementById('ret-qty').value = '1'; document.getElementById('ret-amt').value = ''; if (res.medicines) { dbMedicines = res.medicines; populateMedicineDatalists(); } else { loadMedicineDatabase(); } }); } else { showCustomDialog("Return Action Failed", "Error processing transaction: " + (res.msg || res.message), () => {}, true); } }).catch(err => { console.error(err); showCustomDialog("Error Connection", "Could not submit return to SVR server.", () => {}, true); }); }); };
+        const showCustomDialog = (title, message, callback, isDanger = false) => { document.getElementById('modal-title').innerText = title; document.getElementById('modal-message').innerText = message; const mBox = document.getElementById('modal-box-inner'); if (isDanger) { mBox.classList.add('danger-modal'); } else { mBox.classList.remove('danger-modal'); } document.getElementById('modal-container').style.display = 'flex'; currentConfirmAction = callback; };
+        const closeCustomDialog = () => { document.getElementById('modal-container').style.display = 'none'; currentConfirmAction = null; };
+        document.getElementById('modal-confirm-action').addEventListener('click', () => { if (currentConfirmAction) currentConfirmAction(); closeCustomDialog(); });
+        const setupFocusNavigation = () => { const inputs = Array.from(document.querySelectorAll('.nav-input')); inputs.forEach((input, index) => { input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); if (input.id === 'in-mdisc') { applyVerifiedDiscountPercent(); } let nextIndex = index + 1; while (nextIndex < inputs.length && inputs[nextIndex].disabled) { nextIndex++; } const nextInput = inputs[nextIndex]; if (nextInput) { nextInput.focus(); if (nextInput.tagName === 'INPUT') nextInput.select(); } else { addNewMedicineEntry(); } } }); }); const loginInputs = Array.from(document.querySelectorAll('.login-nav-input')); loginInputs.forEach((input, index) => { input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); const nextLogin = loginInputs[index + 1]; if (nextLogin) nextLogin.focus(); else initiateSecureAuthenticationSequence(); } }); }); const returnInputs = Array.from(document.querySelectorAll('.ret-nav-input')); returnInputs.forEach((input, index) => { input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); const nextReturn = returnInputs[index + 1]; if (nextReturn) { nextReturn.focus(); if (nextReturn.tagName === 'INPUT') nextReturn.select(); } else { triggerMedicineReturnProcess(); } } }); }); };
+
+        setupFocusNavigation();
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').then(() => {
+                    console.log('PWA Service Worker registered.');
+                }).catch(err => {
+                    if (location.hostname.includes('usercontent.goog') || location.hostname.includes('scf.usercontent')) {
+                        console.log('Service worker registration bypassed in preview sandbox.');
+                    } else {
+                        console.warn('Service Worker registration failed:', err);
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+</html>

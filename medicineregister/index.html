@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Dr. S. Venkata Subba Reddy MULTISPECIALTY Hospital — Admin Portal</title>
+
+    <link rel="icon" type="image/png" href="https://dsvsrh.github.io/DRSVR-IMG-2026/IMG_02_FEVICON_ICON.png">
+
+    <link rel="apple-touch-icon" href="https://dsvsrh.github.io/DRSVR-IMG-2026/IMG_02_FEVICON_ICON.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#1e3a8a">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@100..900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        body, button, input, textarea, select, span, p, h1, h2, h3, h4, h5, h6, td, th, label { font-family: 'Roboto Slab', serif !important; }
+        .fa, .fa-solid, .fa-regular, .fa-brands, [class^="fa-"], [class*=" fa-"] { font-family: 'Font Awesome 6 Free', 'Font Awesome 6 Pro' !important; font-weight: 900 !important; font-style: normal !important; }
+        :root { --primary: #ef4444; --accent: #dc2626; --bg: #f3f7f9; --black: #000000; }
+        body { background-color: #eef2f5; color: #111827; display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        .top-hospital-header { background: white; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--primary); width: 100%; z-index: 50; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .left-branding { display: flex; align-items: center; }
+        .header-logo { height: 48px; margin-right: 12px; filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.1)); }
+        .hospital-name { font-size: 14px; font-weight: 900; color: var(--black); text-transform: uppercase; line-height: 1.2; letter-spacing: 0.2px; }
+        @media (max-width: 640px) { .hospital-name { font-size: 10px; } .header-logo { height: 36px; } }
+        .dept-tagline { font-size: 8px; font-weight: 700; color: var(--accent); margin-top: 1px; letter-spacing: 0.5px; text-transform: uppercase; }
+        .tracing-pill { background: #f0fdf4; border: 1px solid #bbf7d0; padding: 3px 10px; border-radius: 20px; display: flex; align-items: center; gap: 6px; }
+        .blink-dot { width: 6px; height: 6px; background-color: #22c55e; border-radius: 50%; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: 0.5; } 100% { transform: scale(1); opacity: 1; } }
+        .tracing-text { font-size: 8px; font-weight: 900; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; }
+        .main-wrapper { flex: 1; display: flex; flex-direction: column; align-items: center; width: 100%; }
+        .login-card { background: white; padding: 40px 30px; border-radius: 25px; box-shadow: 0 15px 50px rgba(0,0,0,0.1); width: 95%; max-width: 380px; position: relative; margin-top: 8vh; margin-bottom: 5vh; transition: all 0.3s ease; }
+        .login-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--primary); color: white; padding: 6px 20px; border-radius: 8px; font-size: 10px; font-weight: 900; white-space: nowrap; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4); z-index: 10; }
+        .input-group { position: relative; margin-bottom: 18px; }
+        .input-group i { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: #3b82f6; font-size: 14px; }
+        .login-input { width: 100%; padding: 12px 20px 12px 50px; border: 1.5px solid #e2e8f0; border-radius: 50px; outline: none; font-size: 12px; font-weight: 700; transition: 0.3s; color: #334155; }
+        .login-input:focus { border-color: #3b82f6; background: #f8fafc; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); }
+        .login-go-btn { background: var(--primary); color: white; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; transition: 0.3s; margin: 15px auto 0; box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3); border: none; }
+        .login-go-btn:hover { background: var(--accent); transform: scale(1.05); }
+        .login-go-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+        .toolbar { background: white; padding: 10px 16px; display: flex; align-items: center; gap: 12px; border-bottom: 2px solid #e2e8f0; width: 100%; }
+        .btn-hd { padding: 8px 16px; border-radius: 8px; font-size: 10px; font-weight: 800; text-transform: uppercase; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 3px 6px rgba(0,0,0,0.08); border: none; cursor: pointer; }
+        .btn-hd:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,0,0,0.12); }
+        .btn-hd:active { transform: translateY(0); }
+        .table-container { overflow-x: auto; background: white; width: 100%; scrollbar-width: none; -ms-overflow-style: none; }
+        .table-container::-webkit-scrollbar { display: none; }
+        table { border-collapse: collapse; width: 100%; }
+        th { background-color: #f1f5f9; color: #1e293b; font-weight: 900; text-transform: uppercase; font-size: 9px; padding: 12px 10px; border: 1px solid #cbd5e1; white-space: nowrap; letter-spacing: 0.5px; }
+        td { padding: 10px; border: 1px solid #e2e8f0; font-size: 11px; text-align: center; font-weight: 600; white-space: nowrap; }
+        tr:hover td { background-color: #f8fafc; }
+        .col-qty { background-color: #ffffff; }
+        .col-amt { background-color: #f0f7ff; color: #1d4ed8; }
+        .col-highlight { background-color: #fdf2f2; color: #b91c1c; }
+        .col-green { background-color: #f0fdf4; color: #15803d; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); align-items: center; justify-content: center; z-index: 100; backdrop-filter: blur(4px); padding: 16px; }
+        .modal-content { background: white; padding: 28px; border-radius: 20px; width: 100%; max-width: 440px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); transform: scale(0.95); transition: all 0.2s ease-out; }
+        .modal.flex .modal-content { transform: scale(1); }
+        .spinner { animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <!-- SECTION NAME: Header -->
+    <header class="top-hospital-header">
+        <div class="left-branding">
+            <img src="https://dsvsrh.github.io/DRSVR-IMG-2026/IMG_02_FEVICON_ICON.png" alt="Logo" class="header-logo">
+            <div class="header-text-stack">
+                <div class="hospital-name">Dr. S. Venkata Subba Reddy MULTISPECIALTY Hospital</div>
+                <div class="dept-tagline">MEDICAL DEPARTMENT • SECURE ACCESS</div>
+            </div>
+        </div>
+        <div class="header-right-tools flex flex-col items-end gap-1.5">
+            <!-- SECTION NAME: Live Tracing -->
+            <div class="tracing-pill">
+                <span id="syncStatus" class="tracing-text">24*7 Live Synced</span>
+                <div class="blink-dot"></div>
+            </div>
+            <!-- SECTION NAME: Live Clock -->
+            <div id="liveClock" class="text-[9px] font-black text-gray-700 uppercase tracking-wider"></div>
+        </div>
+    </header>
+
+    <main class="main-wrapper">
+        <!-- SECTION NAME: Login Area -->
+        <div id="loginArea" class="login-card">
+            <div class="login-badge uppercase">Medicine Register Admin Login</div>
+            
+            <div class="input-group">
+                <i class="fa-solid fa-user"></i>
+                <input type="text" id="uidInput" class="login-input uppercase" placeholder="LOGIN ID">
+            </div>
+            
+            <div class="input-group">
+                <i class="fa-solid fa-lock"></i>
+                <input type="password" id="pwdInput" class="login-input" placeholder="PASSWORD">
+                <i id="togglePwd" class="fa-solid fa-eye text-gray-400 cursor-pointer" style="left: auto; right: 20px;" onclick="togglePassword()"></i>
+            </div>
+            
+            <button id="loginBtn" class="login-go-btn" onclick="verifyAndLoad()">
+                <i id="loginIcon" class="fa-solid fa-arrow-right"></i>
+            </button>
+            <p id="loginError" class="text-red-600 text-[10px] text-center font-bold hidden mt-5 uppercase">Invalid Credentials! Try Again.</p>
+        </div>
+
+        <!-- SECTION NAME: Main Content -->
+        <div id="mainContent" class="hidden w-full">
+            <!-- SECTION NAME: Toolbar -->
+            <div class="toolbar shadow-sm flex-wrap md:flex-nowrap gap-4">
+                <button onclick="openModal('add')" class="bg-green-600 text-white btn-hd hover:bg-green-700 uppercase whitespace-nowrap">
+                    <i class="fa-solid fa-circle-plus"></i> NEW REGISTER
+                </button>
+                
+                <div class="flex items-center gap-2 flex-1 justify-end w-full md:w-auto">
+                    <div class="relative w-full max-w-[200px] md:max-w-[300px]">
+                        <input type="text" id="searchInput" onkeydown="if(event.key==='Enter')handleSearch()" oninput="handleAutoClear(this)" placeholder="Search MCD or Name..." class="w-full border-2 border-gray-100 p-2 rounded-xl text-[11px] outline-none focus:border-blue-500 uppercase font-black transition">
+                    </div>
+                    <button onclick="handleSearch()" class="bg-blue-600 text-white btn-hd px-4 hover:bg-blue-700" title="Search">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                    <button onclick="clearSearch()" class="bg-gray-500 text-white btn-hd px-4 hover:bg-gray-600" title="Clear Search">
+                        <i class="fa-solid fa-eraser"></i>
+                    </button>
+                    
+                    <button id="reloadBtn" onclick="fetchData()" class="bg-orange-500 text-white btn-hd px-4 hover:bg-orange-600" title="Reload Database">
+                        <i id="reloadIcon" class="fa-solid fa-rotate"></i>
+                    </button>
+                    
+                    <button onclick="location.reload()" class="bg-red-600 text-white btn-hd px-4 hover:bg-red-700" title="Power Off/Log Out">
+                        <i class="fa-solid fa-power-off"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- SECTION NAME: Medicine Data Table -->
+            <div class="table-container shadow-inner">
+                <table class="w-full border-collapse">
+                    <thead>
+                        <tr id="tableHeader"></tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- SECTION NAME: Medicine Entry Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center border-b-2 border-gray-100 pb-3 mb-4">
+                <h2 id="modalTitle" class="text-xs font-black text-blue-900 uppercase">Medicine Entry</h2>
+                <i onclick="closeModal()" class="fa-solid fa-xmark text-gray-400 cursor-pointer hover:text-red-500 text-lg transition"></i>
+            </div>
+            
+            <div class="grid grid-cols-1 gap-4">
+                <input type="hidden" id="editMcd">
+                <div>
+                    <label id="shortLabel" class="text-[10px] font-black uppercase text-gray-500 ml-1">Short Name</label>
+                    <input id="shortName" type="text" class="w-full border-2 border-gray-100 p-2.5 rounded-xl text-xs uppercase font-bold outline-none focus:border-blue-400 transition">
+                </div>
+                <div>
+                    <label id="fullLabel" class="text-[10px] font-black uppercase text-gray-500 ml-1">Full Name</label>
+                    <input id="fullName" type="text" class="w-full border-2 border-gray-100 p-2.5 rounded-xl text-xs uppercase font-bold outline-none focus:border-blue-400 transition">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label id="stockLabel" class="text-[10px] font-black uppercase text-gray-500 ml-1">Stock Added</label>
+                        <input id="lstStk" type="number" class="w-full border-2 border-gray-100 p-2.5 rounded-xl text-xs font-bold outline-none focus:border-blue-400 transition" value="0">
+                    </div>
+                    <div>
+                        <label id="priceLabel" class="text-[10px] font-black uppercase text-gray-500 ml-1">Price Added</label>
+                        <input id="lstPrc" type="number" class="w-full border-2 border-gray-100 p-2.5 rounded-xl text-xs font-bold outline-none focus:border-blue-400 transition" value="0">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[10px] font-black uppercase text-gray-500 ml-1">Tab Price</label>
+                    <input id="tabPrc" type="number" class="w-full border-2 border-gray-100 p-2.5 rounded-xl text-xs font-bold outline-none focus:border-blue-400 transition" value="0">
+                </div>
+            </div>
+            
+            <div class="flex justify-end gap-3 mt-6">
+                <button onclick="closeModal()" class="bg-gray-100 text-gray-600 btn-hd px-5 hover:bg-gray-200">CANCEL</button>
+                <button id="submitBtn" onclick="submitData()" class="bg-blue-900 text-white btn-hd shadow-lg px-6 hover:bg-blue-800">
+                    <i id="submitIcon" class="fa-solid fa-floppy-disk mr-1"></i> <span id="submitText">SUBMIT RECORD</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION NAME: Delete Confirmation Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content text-center">
+            <i class="fa-solid fa-triangle-exclamation text-red-500 text-4xl mb-3"></i>
+            <h2 class="text-xs font-black uppercase mb-5 tracking-tighter text-slate-800">Are you sure you want to delete this record?</h2>
+            <div class="flex justify-center gap-4">
+                <button onclick="closeConfirm()" class="bg-gray-200 text-gray-700 btn-hd px-8 hover:bg-gray-300">NO</button>
+                <button id="confirmBtn" onclick="confirmDelete()" class="bg-red-600 text-white btn-hd px-8 hover:bg-red-700">
+                    <i id="confirmIcon" class="fa-solid fa-spinner spinner hidden mr-1"></i> YES
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- UI Alert Toast System -->
+    <div id="toast" class="fixed bottom-5 right-5 opacity-0 pointer-events-none transition-all duration-300 z-[200]"></div>
+
+    <!-- SECTION NAME: Footer -->
+    <footer class="bg-white p-4 text-center border-t border-gray-200 w-full mt-auto">
+        <p class="text-[8.5px] text-gray-500 font-bold uppercase tracking-wider">© 2026 All Rights Reserved | Dr. S. Venkata Subba Reddy MULTISPECIALTY Hospital | Architected by Sri Veda Org.</p>
+    </footer>
+
+    <script>
+        // Updated Web App Deployment URL
+        const API_URL = "https://script.google.com/macros/s/AKfycbwTmFbWb2fUlIw-rkTlOUTDLKhC386zcpbbn_Fmh86kPDaUVAYr-pMPCjjOdCZFzds77g/exec";
+        let allMedicines = [];
+        let sessionID = "";
+        let sessionPass = "";
+        let deleteTarget = null;
+        let currentAction = "add"; 
+
+        const showToast = (msg, isErr = false) => { const t = document.getElementById('toast'); t.innerText = msg; t.className = `fixed bottom-5 right-5 px-4 py-2 rounded-lg text-white font-bold text-xs uppercase z-[200] shadow-lg transition-all transform duration-300 ${isErr ? 'bg-red-600' : 'bg-green-600'}`; t.style.opacity = '1'; setTimeout(() => t.style.opacity = '0', 3000); };
+        const setLoading = (btnId, iconId, isLoad) => { const btn = document.getElementById(btnId); const icon = document.getElementById(iconId); if(isLoad) { btn.disabled = true; if(icon) { icon.className = "fa-solid fa-spinner spinner"; icon.classList.remove('hidden'); } } else { btn.disabled = false; if(icon) { if(iconId === "loginIcon") icon.className = "fa-solid fa-arrow-right"; else if(iconId === "reloadIcon") icon.className = "fa-solid fa-rotate"; else if(iconId === "submitIcon") icon.className = "fa-solid fa-floppy-disk"; else if(iconId === "confirmIcon") { icon.className = "fa-solid fa-spinner spinner"; icon.classList.add('hidden'); } } } };
+        const togglePassword = () => { const pin = document.getElementById('pwdInput'); const icon = document.getElementById('togglePwd'); if(pin.type === 'password') { pin.type = 'text'; icon.className = "fa-solid fa-eye-slash text-blue-500 cursor-pointer"; } else { pin.type = 'password'; icon.className = "fa-solid fa-eye text-gray-400 cursor-pointer"; } };
+        const updateLiveClock = () => { const d = new Date(); const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]; const hours = d.getHours(); const ampm = hours >= 12 ? 'PM' : 'AM'; const formattedHours = hours % 12 || 12; const formattedMinutes = String(d.getMinutes()).padStart(2, '0'); const formattedSeconds = String(d.getSeconds()).padStart(2, '0'); document.getElementById('liveClock').innerText = `${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()} | ${formattedHours}:${formattedMinutes}:${formattedSeconds} ${ampm}`; };
+        const closeModal = () => { document.getElementById('modal').style.display = 'none'; };
+        const closeConfirm = () => { document.getElementById('confirmModal').style.display = 'none'; deleteTarget = null; };
+        const clearSearch = () => { document.getElementById('searchInput').value = ''; renderTable(allMedicines); };
+        const handleAutoClear = (input) => { if(input.value.trim() === '') renderTable(allMedicines); };
+        const getLast7Days = () => { const dates = []; const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]; const dayLabels = ["TODAY", "YESTERDAY", "DAY 3", "DAY 4", "DAY 5", "DAY 6", "DAY 7"]; for (let i = 0; i < 7; i++) { const d = new Date(); d.setDate(d.getDate() - i); dates.push({ label: dayLabels[i], dateStr: `${monthNames[d.getMonth()]} ${d.getDate()}` }); } return dates; };
+        const formatDate = (ds) => { if(!ds || ds === '0') return '-'; const d = new Date(ds); if(isNaN(d.getTime())) return ds.toUpperCase(); const m = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"]; return `${String(d.getDate()).padStart(2,'0')} ${m[d.getMonth()]} ${d.getFullYear()}`; };
+        
+        const verifyAndLoad = async () => { 
+            const u = document.getElementById('uidInput').value.trim().toUpperCase(); 
+            const p = document.getElementById('pwdInput').value.trim(); 
+            if(!u || !p) { 
+                showToast("Please fill in all security fields.", true); 
+                return; 
+            } 
+            sessionID = u; 
+            sessionPass = p; 
+            setLoading('loginBtn', 'loginIcon', true); 
+            await fetchData(); 
+        };
+
+        const fetchData = async () => { 
+            if(!sessionID) return; 
+            setLoading('reloadBtn', 'reloadIcon', true); 
+            document.getElementById('loginError').classList.add('hidden'); 
+            try { 
+                const r = await fetch(API_URL, { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify({ action: 'auth', uid: sessionID, pwd: sessionPass }) 
+                }); 
+                const d = await r.json(); 
+                if(d.success) { 
+                    allMedicines = d.medicines || d.data || d.records || []; 
+                    document.getElementById('loginArea').classList.add('hidden'); 
+                    document.getElementById('mainContent').classList.remove('hidden'); 
+                    window.scrollTo(0, 0); 
+                    showToast("Login Successful"); 
+                    renderTable(allMedicines); 
+                } else { 
+                    document.getElementById('loginError').innerText = d.msg || "Authentication Failed!"; 
+                    document.getElementById('loginError').classList.remove('hidden'); 
+                    showToast(d.msg || "Error", true); 
+                } 
+            } catch (e) { 
+                console.error(e); 
+                showToast("Network Error Occurred", true); 
+            } finally { 
+                setLoading('loginBtn', 'loginIcon', false); 
+                setLoading('reloadBtn', 'reloadIcon', false); 
+            } 
+        };
+
+        const silentReload = async () => { 
+            if(!sessionID || document.getElementById('modal').style.display === 'flex' || document.getElementById('confirmModal').style.display === 'flex') return; 
+            document.getElementById('syncStatus').innerText = "Syncing..."; 
+            try { 
+                const r = await fetch(API_URL, { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify({ action: 'auth', uid: sessionID, pwd: sessionPass }) 
+                }); 
+                const d = await r.json(); 
+                if(d.success) { 
+                    allMedicines = d.medicines || d.data || d.records || []; 
+                    const searchVal = document.getElementById('searchInput').value.trim(); 
+                    if(!searchVal) renderTable(allMedicines); 
+                } 
+            } catch(e) { 
+                console.error("Auto background refresh failed", e); 
+            } finally { 
+                document.getElementById('syncStatus').innerText = "24*7 Live Synced"; 
+            } 
+        };
+
+        const renderTable = (data) => { 
+            if(!data || !Array.isArray(data)) data = []; 
+            const h = document.getElementById('tableHeader'); 
+            const b = document.getElementById('tableBody'); 
+            const last7Days = getLast7Days(); 
+            let headerHtml = '<th>SR</th><th>EDIT</th><th>DEL</th><th>MCD</th><th>MED-SHORT</th><th>MED-NAME</th><th>LAST ADDED</th><th>CURRENT STOCK</th><th>LAST ADDED PRICE</th><th>PURCHASING PRICE</th><th>SELLING PRICE</th>'; 
+            last7Days.forEach((day, idx) => { 
+                if(idx === 0) headerHtml += `<th colspan="2" class="bg-amber-50 border-2 border-amber-200">TODAY<br><span class="text-[7px] text-amber-700">${day.dateStr}</span><br>QTY & AMT</th>`; 
+                else headerHtml += `<th>${day.label}<br><span class="text-[7px] text-blue-500">${day.dateStr}</span><br>QTY</th><th class="bg-blue-50">${day.label}<br><span class="text-[7px] text-blue-500">${day.dateStr}</span><br>AMT</th>`; 
+            }); 
+            headerHtml += '<th class="bg-purple-100 text-purple-900 font-bold">WK-QTY</th><th class="bg-purple-100 text-purple-900 font-bold">WK-AMT</th><th>DATE</th>'; 
+            h.innerHTML = headerHtml; 
+            
+            const sortedData = [...data].sort((x, y) => {
+                const aVal = String(x[1] || '').trim();
+                const bVal = String(y[1] || '').trim();
+                return aVal.localeCompare(bVal, undefined, {numeric: true, sensitivity: 'base'});
+            });
+
+            b.innerHTML = sortedData.map((r, index) => { 
+                let qTotal = 0, aTotal = 0; 
+                for (let i = 0; i < 7; i++) { 
+                    qTotal += Number(r[9 + (i * 2)] || 0); 
+                    aTotal += Number(r[10 + (i * 2)] || 0); 
+                } 
+                let srNo = index + 1; 
+                let rowHtml = `<td>${srNo}</td><td><button onclick="openModal('update', '${r[1]}')" class="text-blue-600 hover:scale-110 transition duration-150 transform"><i class="fa-solid fa-pen-to-square"></i></button></td><td><button onclick="askDelete('${r[1]}')" class="text-red-600 hover:scale-110 transition duration-150 transform"><i class="fa-solid fa-trash-can"></i></button></td><td class="font-black text-blue-800">${r[1]||0}</td><td>${r[2]||0}</td><td class="text-left font-black uppercase px-2">${r[3]||0}</td><td class="col-highlight">${r[4]||0}</td><td class="col-highlight font-black">${r[5]||0}</td><td class="col-highlight text-blue-600">₹${r[6]||0}</td><td class="col-highlight font-black text-blue-800">₹${r[7]||0}</td><td>₹${r[8]||0}</td>`; 
+                for (let i = 0; i < 7; i++) { 
+                    let qVal = r[9 + (i * 2)] || 0, aVal = r[10 + (i * 2)] || 0; 
+                    if(i === 0) rowHtml += `<td class="bg-red-50 text-red-600 font-bold border-l-2 border-red-100">${qVal}</td><td class="bg-green-50 text-green-700 font-bold border-r-2 border-green-100">₹${aVal}</td>`; 
+                    else rowHtml += `<td class="col-qty">${qVal}</td><td class="col-amt">₹${aVal}</td>`; 
+                } 
+                rowHtml += `<td class="bg-purple-100 text-purple-950 font-black border-x border-purple-200">${qTotal}</td><td class="bg-purple-100 text-purple-950 font-black border-x border-purple-200">₹${aTotal}</td><td class="text-[9px] text-gray-500 font-bold uppercase tracking-tight">${formatDate(r[25])}</td></tr>`; 
+                return rowHtml; 
+            }).join(''); 
+        };
+
+        const submitData = async () => { 
+            const mcdVal = document.getElementById('editMcd').value;
+            const shortVal = document.getElementById('shortName').value.trim();
+            const nameVal = document.getElementById('fullName').value.trim();
+            const lstStkVal = Number(document.getElementById('lstStk').value) || 0;
+            const lstPrcVal = Number(document.getElementById('lstPrc').value) || 0;
+            const tabPrcVal = Number(document.getElementById('tabPrc').value) || 0;
+
+            const p = { 
+                action: currentAction, 
+                uid: sessionID, 
+                pwd: sessionPass, 
+                mcd: mcdVal, 
+                id: mcdVal, 
+                short: shortVal, 
+                shortName: shortVal, 
+                name: nameVal, 
+                fullName: nameVal, 
+                lstStk: lstStkVal, 
+                stock: lstStkVal, 
+                lstQty: lstStkVal, 
+                lstPrc: lstPrcVal, 
+                price: lstPrcVal, 
+                tabPrc: tabPrcVal,
+                tabPrice: tabPrcVal, 
+                sellingPrice: tabPrcVal 
+            }; 
+            
+            if(!p.short || !p.name) { 
+                showToast("Short and Full Names cannot be empty.", true); 
+                return; 
+            } 
+            
+            setLoading('submitBtn', 'submitIcon', true); 
+            try { 
+                const r = await fetch(API_URL, { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify(p) 
+                }); 
+                const d = await r.json(); 
+                if(d.success) { 
+                    allMedicines = d.medicines || d.data || d.records || []; 
+                    renderTable(allMedicines); 
+                    closeModal(); 
+                    showToast("Record Submitted Successfully!"); 
+                } else { 
+                    showToast(d.msg || d.error || "Operation failed: Server returned success=false", true); 
+                } 
+            } catch(e) { 
+                console.error(e); 
+                showToast("Failed to Submit Record: " + e.message, true); 
+            } finally { 
+                setLoading('submitBtn', 'submitIcon', false); 
+            } 
+        };
+
+        const askDelete = (mcd) => { 
+            deleteTarget = mcd; 
+            document.getElementById('confirmModal').style.display = 'flex'; 
+        };
+
+        const confirmDelete = async () => { 
+            if(!deleteTarget) return; 
+            setLoading('confirmBtn', 'confirmIcon', true); 
+            try { 
+                const r = await fetch(API_URL, { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify({ 
+                        action: 'delete', 
+                        uid: sessionID, 
+                        pwd: sessionPass, 
+                        mcd: deleteTarget,
+                        id: deleteTarget 
+                    }) 
+                }); 
+                const d = await r.json(); 
+                if(d.success) { 
+                    allMedicines = d.medicines || d.data || d.records || []; 
+                    renderTable(allMedicines); 
+                    closeConfirm(); 
+                    showToast("Record Deleted Successfully!"); 
+                } else { 
+                    showToast(d.msg || d.error || "Failed to delete record.", true); 
+                } 
+            } catch(e) { 
+                console.error(e); 
+                showToast("Failed to Delete Record: " + e.message, true); 
+            } finally { 
+                setLoading('confirmBtn', 'confirmIcon', false); 
+            } 
+        };
+
+        const handleSearch = () => { 
+            const t = document.getElementById('searchInput').value.toLowerCase().trim(); 
+            const f = allMedicines.filter(m => m.some(v => String(v).toLowerCase().includes(t))); 
+            renderTable(f); 
+        };
+
+        const openModal = (mode, mcd = '') => { 
+            document.getElementById('modal').style.display = 'flex'; 
+            if (mode === 'add') { 
+                document.getElementById('modalTitle').innerText = 'ADD NEW MEDICINE'; 
+                document.getElementById('editMcd').value = ''; 
+                document.querySelectorAll('#modal input:not([type=hidden])').forEach(i => i.value = (i.type === 'number' ? '0' : '')); 
+                document.getElementById('stockLabel').innerText = 'Stock Added'; 
+                document.getElementById('priceLabel').innerText = 'Price Added'; 
+                currentAction = 'add'; 
+            } else { 
+                document.getElementById('modalTitle').innerText = 'UPDATE RECORD: ' + mcd; 
+                const m = allMedicines.find(x => String(x[1]).trim() === String(mcd).trim()); 
+                if (m) {
+                    document.getElementById('editMcd').value = m[1]; 
+                    document.getElementById('shortName').value = m[2] || ''; 
+                    document.getElementById('fullName').value = m[3] || ''; 
+                    document.getElementById('lstStk').value = 0; 
+                    document.getElementById('lstPrc').value = 0; 
+                    document.getElementById('tabPrc').value = m[8] || 0; 
+                    document.getElementById('stockLabel').innerText = 'Newly Added Stock'; 
+                    document.getElementById('priceLabel').innerText = 'New Purchase Price'; 
+                    currentAction = 'update'; 
+                } else {
+                    showToast("Medicine record could not be resolved.", true);
+                    closeModal();
+                }
+            } 
+        };
+
+        const initEventListeners = () => { 
+            document.getElementById('uidInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') document.getElementById('pwdInput').focus(); }); 
+            document.getElementById('pwdInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') verifyAndLoad(); }); 
+            updateLiveClock(); 
+            setInterval(updateLiveClock, 1000); 
+            setInterval(silentReload, 8000); 
+        };
+        window.onload = initEventListeners;
+    </script>
+</body>
+</html>
