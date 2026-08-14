@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Letter Pad | Dr VSR Hospital</title>
+<link rel="icon" type="image/png" href="https://dsvsrh.github.io/DRSVR-IMG-2026/IMG_02_FEVICON_ICON.png">
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+body{font-family:'Roboto Slab',serif;background-color:#f0f0f0;padding:10px;margin:0;display:flex;justify-content:center;flex-direction:column;align-items:center;}
+
+/* CM001 - A4 Page Styling */
+.a4-page{width:210mm;height:297mm;padding:14mm;margin:5px auto 20px auto;background:#ffffff;box-sizing:border-box;display:flex;flex-direction:column;position:relative;box-shadow:0 10px 25px rgba(0,0,0,0.15);}
+.a4-page::before{content:'';position:absolute;top:4mm;left:4mm;right:4mm;bottom:4mm;border:3px solid #1e3a8a;pointer-events:none;}
+
+/* CM002 - Header Styling */
+.header-container{display:flex;flex-direction:column;border-bottom:2.5px solid #1e3a8a;padding-bottom:15px;margin-bottom:20px;}
+.header-top{display:flex;align-items:center;justify-content:flex-start;gap:20px;width:100%;}
+.logo-img{height:115px;width:auto;object-fit:contain;}
+.hospital-name{font-size:1.25rem;font-weight:900;color:#1e3a8a;text-transform:uppercase;line-height:1.2;margin:0;white-space:nowrap;}
+.since-box{font-size:0.9rem;font-weight:800;color:#000000;background-color:#7FD3FF;padding:4px 12px;border-radius:4px;border:1px solid #1e3a8a;}
+
+/* CM003 - Main Content Area */
+.main-content{flex-grow:1;display:flex;flex-direction:column;}
+.editable-notes{flex-grow:1;width:100%;font-size:1rem;line-height:40px;outline:none;background-image:repeating-linear-gradient(transparent,transparent 39px,#cbd5e1 39px,#cbd5e1 40px);background-attachment:local;color:#000000;position:relative;word-wrap:break-word;white-space:pre-wrap;}
+
+/* CM004 - Footer Styling */
+.footer-wrapper{margin-top:auto;border-top:1px solid #1e3a8a;padding-top:10px;}
+.footer{text-align:center;color:#1e3a8a;}
+
+/* CM005 - Controls Section */
+.controls-section{display:flex;gap:15px;margin-bottom:5px;justify-content:center;width:100%;}
+.btn{padding:6px 16px;font-size:0.85rem;font-weight:800;color:#fff;border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all 0.1s ease;text-transform:uppercase;letter-spacing:0.5px;}
+.btn:active{transform:translateY(4px);box-shadow:none !important;}
+.btn-print{background:linear-gradient(145deg,#3b82f6,#1e3a8a);box-shadow:0 4px 0 #172554,0 6px 10px rgba(0,0,0,0.25);border:1px solid #172554;text-shadow:1px 1px 2px rgba(0,0,0,0.3);}
+.btn-reset{background:linear-gradient(145deg,#f43f5e,#be123c);box-shadow:0 4px 0 #881337,0 6px 10px rgba(0,0,0,0.25);border:1px solid #881337;text-shadow:1px 1px 2px rgba(0,0,0,0.3);}
+
+/* CM014 - Date Input Styling */
+.date-input-container{position:relative;display:inline-flex;align-items:center;}
+.date-input-container input[type="date"]{position:absolute;opacity:0;width:100%;height:100%;cursor:pointer;left:0;top:0;}
+.date-field{border:none;border-bottom:1.5px dotted #1e3a8a;outline:none;padding:0 4px;color:#1e3a8a;font-weight:800;width:110px;text-align:center;font-size:0.85rem;cursor:pointer;background:transparent;}
+
+/* CM006 - Print Styles */
+@media print{body{background-color:transparent;padding:0;margin:0;display:block;}@page{size:A4;margin:0;}.a4-page{margin:0;box-shadow:none;border:none !important;height:100vh;width:100vw;}.a4-page::before{border:4px solid #1e3a8a !important;}.controls-section{display:none;}.editable-notes{background-image:none !important;}}
+</style>
+</head>
+<body>
+
+<!-- CM007 - Controls Section -->
+<div class="controls-section">
+<button class="btn btn-reset" id="resetBtn"><i class="fa-solid fa-rotate-right"></i> Reset</button>
+<button class="btn btn-print" id="printBtn"><i class="fa-solid fa-print"></i> Print</button>
+</div>
+
+<!-- CM008 - A4 Page -->
+<div class="a4-page">
+
+<!-- CM009 - Header -->
+<div class="header-container">
+<div class="header-top">
+<img src="https://dsvsrh.github.io/DRSVR-IMG-2026/IMG_01_HEDER_LOGO_MAIN.png" class="logo-img" alt="Hospital Logo">
+<div class="header-text">
+<h1 class="hospital-name">Dr. S. Venkata Subba Reddy Multispecialty Hospital</h1>
+<div class="flex items-center gap-4 mt-3">
+<span class="since-box">SINCE 1989</span>
+<span class="text-[0.95rem] font-bold text-blue-600">"Best Of Care, Close to Home"</span>
+<span class="font-bold text-blue-900 ml-auto"><i class="fas fa-phone-alt"></i> 9063307444<br><span class="text-[0.75rem] font-bold"><i class="fas fa-globe"></i> www.drvsrhospital.in</span></span>
+</div>
+</div>
+</div>
+</div>
+
+<!-- CM015 - Date Picker -->
+<div style="width:100%;display:flex;justify-content:flex-end;margin-bottom:10px;">
+<div class="date-input-container">
+<span class="font-bold text-blue-900 text-[0.9rem] mr-2">Date:</span>
+<input type="text" id="letterDate" class="date-field" placeholder="DD MON YYYY" readonly>
+<input type="date" onchange="formatDate(this, 'letterDate')">
+<i class="fas fa-calendar-alt ml-2 text-blue-900 cursor-pointer text-lg"></i>
+</div>
+</div>
+
+<!-- CM010 - Main Content -->
+<div class="main-content">
+<div class="editable-notes" id="notesArea" contenteditable="true"></div>
+</div>
+
+<!-- CM011 - Footer -->
+<div class="footer-wrapper">
+<div class="footer">
+<p class="text-[0.8rem] font-bold">Address : Church Masjid Street, ALLAGADDA - 518543, Nandyal District, Andhra Pradesh.</p>
+</div>
+</div>
+
+</div>
+<script>
+
+/* CM012 - Button Actions */
+document.getElementById('resetBtn').addEventListener('click',function(){window.location.reload();});
+document.getElementById('printBtn').addEventListener('click',function(){window.print();});
+
+/* CM016 - Date Formatter */
+const formatDate=(input,targetId)=>{const d=new Date(input.value);const m=["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];if(!isNaN(d))document.getElementById(targetId).value=`${("0"+d.getDate()).slice(-2)} ${m[d.getMonth()]} ${d.getFullYear()}`;}
+
+/* CM013 - Custom Cursor Placement Logic */
+const notesArea = document.getElementById('notesArea');
+let pressTimer;
+function handleCursorPlacement(e){
+let endDummy = document.createElement('span');
+notesArea.appendChild(endDummy);
+let contentBottom = endDummy.offsetTop;
+notesArea.removeChild(endDummy);
+const rect = notesArea.getBoundingClientRect();
+const clickY = e.clientY - rect.top;
+const clickX = e.clientX - rect.left;
+const lineHeight = 40;
+const targetRow = Math.floor(clickY / lineHeight);
+if(clickY > contentBottom - 10){
+let dummy = document.createElement('span');
+dummy.innerHTML = '&#8203;';
+notesArea.appendChild(dummy);
+while(dummy.offsetTop < (targetRow * lineHeight)){notesArea.insertBefore(document.createElement('br'), dummy);}
+while(dummy.offsetLeft < clickX - 20){notesArea.insertBefore(document.createTextNode('\u00A0'), dummy);}
+const range = document.createRange();
+const sel = window.getSelection();
+range.setStartBefore(dummy);
+range.collapse(true);
+sel.removeAllRanges();
+sel.addRange(range);
+notesArea.removeChild(dummy);
+notesArea.focus();
+}
+}
+notesArea.addEventListener('dblclick',function(e){clearTimeout(pressTimer);handleCursorPlacement(e);});
+notesArea.addEventListener('mousedown',function(e){pressTimer=window.setTimeout(function(){handleCursorPlacement(e);},1000);});
+notesArea.addEventListener('mouseup',function(){clearTimeout(pressTimer);});
+notesArea.addEventListener('mouseleave',function(){clearTimeout(pressTimer);});
+notesArea.addEventListener('touchstart',function(e){if(e.touches.length>1)return;const t=e.touches[0];const fakeEvent={clientY:t.clientY,clientX:t.clientX};pressTimer=window.setTimeout(function(){handleCursorPlacement(fakeEvent);},1000);},{passive:true});
+notesArea.addEventListener('touchend',function(){clearTimeout(pressTimer);});
+notesArea.addEventListener('touchmove',function(){clearTimeout(pressTimer);});
+</script>
+</body>
+</html>

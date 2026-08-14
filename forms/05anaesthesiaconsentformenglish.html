@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anaesthesia Consent | Dr VSR Hospital</title>
+<link class="favicon-icon" rel="icon" type="image/png" href="https://dsvsrh.github.io/DRSVR-IMG-2026/IMG_02_FEVICON_ICON.png">
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+
+/* CM001 - CSS Variables and Body */
+body { font-family: 'Roboto Slab', serif; background-color: #f3f4f6; padding: 10px; margin: 0; }
+
+/* CM002 - A4 Page Dimensions */
+.a4-page { width: 210mm; height: 297mm; min-height: 297mm; padding: 10mm; margin: 5px auto 40px auto; background: #ffffff; box-sizing: border-box; display: flex; flex-direction: column; position: relative; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); overflow: hidden; }
+
+/* CM003 - Inner Content Area */
+.inner-content { border: 2.5px solid #1e3a8a; height: 100%; display: flex; flex-direction: column; padding: 8mm 10mm; box-sizing: border-box; position: relative; }
+
+/* CM004 - Header Styling */
+.header-container { display: flex; flex-direction: column; border-bottom: 2.5px solid #1e3a8a; padding-bottom: 6px; position: relative; z-index: 10; }
+.header-top { display: flex; align-items: center; justify-content: flex-start; gap: 15px; width: 100%; }
+.logo-img { height: 80px; width: 80px; object-fit: contain; }
+.header-text { display: flex; flex-direction: column; align-items: flex-start; flex-grow: 1; text-align: left; }
+.hospital-name { font-size: 1.3rem; font-weight: 800; color:#228BE6; text-transform: uppercase; line-height: 1.2; white-space: nowrap; letter-spacing: -0.01em; }
+.sub-header-row { display: flex; align-items: center; justify-content: space-between; width: 100%; margin-top: 4px; }
+.since-box { font-size: 0.8rem; font-weight: 800; color:#000000; background-color:#7FD3FF; padding: 1px 6px; border-radius: 4px; border: 1px solid #1e3a8a; }
+.phone-box { font-size: 0.8rem; font-weight: 800; color: #1e3a8a; }
+.tagline { font-size: 0.75rem; font-weight: 700; color:#228BE6; text-transform: uppercase; }
+
+/* CM005 - Background Watermark */
+.watermark { position: absolute; top: 52%; left: 50%; transform: translate(-50%, -50%); width: 300px; height: 300px; opacity: 0.04; pointer-events: none; z-index: 0; }
+
+/* CM006 - Footer Styling */
+.footer { text-align: center; color: #1e3a8a; border-top: 2px solid #1e3a8a; padding-top: 6px; }
+.address-text { font-size: 0.72rem; font-weight: 800; margin-bottom: 1px; }
+
+/* CM007 - Top Controls Bar */
+.controls-top { display: flex; justify-content: center; gap: 12px; margin: 5px auto 10px auto; width: 100%; z-index: 1000; }
+
+/* CM008 - Stylish HD Buttons */
+.btn { padding: 6px 14px; color: white; border-radius: 6px; font-weight: 800; cursor: pointer; border: 1px solid rgba(0,0,0,0.2); display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.72rem; box-shadow: 0 4px 6px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.4); transition: all 0.2s ease; text-transform: uppercase; text-shadow: 1px 1px 2px rgba(0,0,0,0.4); letter-spacing: 0.5px; }
+.btn:hover { transform: translateY(-1px); box-shadow: 0 6px 10px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.5); filter: brightness(1.1); }
+.btn:active { transform: translateY(2px); box-shadow: 0 2px 4px rgba(0,0,0,0.1), inset 0 2px 4px rgba(0,0,0,0.2); }
+.btn-reset { background: linear-gradient(135deg, #f43f5e, #be123c); }
+.btn-print { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+
+/* CM009 - Form Inputs */
+.consent-input { border: none; border-bottom: 1.5px dotted #1e3a8a; outline: none; background: transparent; font-family: 'Roboto Slab', serif; color: #1e3a8a; font-weight: 800; padding: 0px 4px; font-size: 0.82rem; transition: border-color 0.2s; }
+.consent-input:focus { border-bottom: 1.5px solid #1e3a8a; }
+
+/* CM010 - Print Queries */
+@media print { @page { size: A4 portrait; margin: 0; } body { background: #ffffff !important; padding: 0 !important; margin: 0 !important; display: flex !important; justify-content: center !important; align-items: center !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; } .a4-page { width: 210mm !important; height: 297mm !important; padding: 10mm !important; margin: 0 !important; box-shadow: none !important; border: none !important; box-sizing: border-box !important; display: flex !important; flex-direction: column !important; page-break-after: avoid; page-break-inside: avoid; } .controls-top { display: none !important; } .consent-input { border-bottom: 1.5px dotted #1e3a8a !important; color: #1e3a8a !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } }
+</style>
+</head>
+<body>
+
+<!-- CM011 - Top Controls -->
+<div class="controls-top animate-fade-in">
+<button class="btn btn-reset" id="resetBtn_4812" onclick="showResetModal_5921()"><i class="fa-solid fa-rotate-left"></i> RESET</button>
+<button class="btn btn-print" id="printBtn_2831" onclick="triggerNativePrint_9281()"><i class="fa-solid fa-print"></i> PRINT</button>
+</div>
+
+<!-- CM012 - Reset Modal -->
+<div id="resetModal_9102" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9999] hidden">
+<div id="modalCard_9102" class="bg-white rounded-xl shadow-2xl p-6 max-w-sm w-full mx-4 border-2 border-[#1e3a8a] transform scale-95 transition-all duration-200 text-[#1e3a8a]">
+<div class="text-center">
+<div class="w-14 h-14 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-3 text-xl">
+<i class="fa-solid fa-triangle-exclamation"></i>
+</div>
+<h3 class="text-base font-extrabold tracking-wide mb-2 uppercase">Reset Confirmation</h3>
+<p class="text-xs text-gray-600 mb-6 font-semibold">Are you sure you want to clear all entered details? This action cannot be undone.</p>
+<div class="flex gap-3 justify-center">
+<button onclick="hideResetModal_5921()" class="px-5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-md transition text-xs uppercase tracking-wider">No, Cancel</button>
+<button onclick="confirmResetForm_3821()" class="px-5 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-md transition text-xs shadow-md uppercase tracking-wider">Yes, Reset</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- CM013 - Main A4 Consent Form -->
+<div class="a4-page">
+<div class="inner-content">
+<img src="https://dsvsrh.github.io/DRSVR-IMG-2026/IMG_01_HEDER_LOGO_MAIN.png" alt="Hospital Watermark" class="watermark">
+
+<!-- CM014 - Hospital Header -->
+<div class="header-container">
+<div class="header-top">
+<img src="https://dsvsrh.github.io/DRSVR-IMG-2026/IMG_01_HEDER_LOGO_MAIN.png" alt="Hospital Logo" class="logo-img">
+<div class="header-text">
+<h1 class="hospital-name">Dr. S. Venkata Subba Reddy Multispecialty Hospital</h1>
+<div class="sub-header-row">
+<div class="flex items-center gap-3">
+<span class="since-box">SINCE 1989</span>
+<p class="tagline">"Best Of Care, Close to Home"</p>
+</div>
+<div class="phone-box"><i class="fas fa-phone-alt"></i> 9063307444</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- CM015 - Form Content -->
+<form id="consentForm_8291" class="flex-grow flex flex-col justify-start pt-4 pb-4 z-10 relative text-[#1e3a8a] text-[0.83rem] leading-relaxed" onsubmit="event.preventDefault();">
+<div class="text-center mb-3">
+<h2 class="text-sm font-extrabold tracking-wide uppercase border-b-2 border-[#1e3a8a] inline-block pb-0.5">ANAESTHESIA CONSENT</h2>
+</div>
+
+<div class="flex items-end w-full gap-2 mb-2">
+<span class="font-bold">I:</span>
+<input type="text" class="consent-input flex-grow min-w-0" id="p_name">
+<span class="font-bold ml-1">Age :</span>
+<input type="text" class="consent-input w-16 text-center" id="p_age">
+<span class="font-bold ml-1">Sex :</span>
+<input type="text" class="consent-input w-16 text-center" id="p_sex">
+<span class="font-bold ml-1">MR No.</span>
+<input type="text" class="consent-input w-36 text-center" id="p_mrno">
+</div>
+
+<p class="mb-2">have been explained about the Anaesthesia and type of Anaesthesia to be given to me/my patient to perform the procedure.</p>
+
+<div class="flex items-end w-full gap-2 mb-3">
+<span class="font-bold whitespace-nowrap">Type of Anaesthesia Planned :</span>
+<input type="text" class="consent-input flex-grow min-w-0" id="p_type_planned">
+</div>
+
+<p class="mb-1">I have been explained by the doctors that the cause of me/my patient being at high risk for anaesthesia are due to the following.</p>
+
+<div class="flex flex-col gap-1.5 mb-3 pl-4">
+<div class="flex items-end gap-2">
+<span class="font-bold">1.</span>
+<input type="text" class="consent-input flex-grow min-w-0" id="hr_1">
+</div>
+<div class="flex items-end gap-2">
+<span class="font-bold">2.</span>
+<input type="text" class="consent-input flex-grow min-w-0" id="hr_2">
+</div>
+</div>
+
+<p class="mb-1">I have also been explained that the possible complications of anaesthesia are as follows</p>
+
+<div class="flex flex-col gap-1.5 mb-3 pl-4">
+<div class="flex items-end gap-2">
+<span class="font-bold">1.</span>
+<input type="text" class="consent-input flex-grow min-w-0" id="comp_1">
+</div>
+<div class="flex items-end gap-2">
+<span class="font-bold">2.</span>
+<input type="text" class="consent-input flex-grow min-w-0" id="comp_2">
+</div>
+</div>
+
+<p class="text-center font-bold italic mb-4 mt-1 px-4 text-[0.8rem] leading-normal">
+I also state that I or my family shall not hold HOSPITAL or its doctors responsible for any consequences whats over
+</p>
+
+<div class="grid grid-cols-2 gap-x-10 gap-y-3 mt-auto pt-2">
+<div class="flex flex-col gap-3 justify-between min-w-0">
+<div class="flex flex-col">
+<span class="font-bold text-[0.8rem]">Anaesthesia Name / Signature</span>
+<input type="text" class="consent-input w-full mt-3" id="anes_sig">
+</div>
+<div class="flex flex-col mt-1">
+<span class="font-bold mb-0.5 text-[0.8rem]">Witness Name / Signature</span>
+<div class="flex items-end gap-1 min-w-0">
+<span class="font-bold">1)</span>
+<input type="text" class="consent-input flex-grow min-w-0" id="witness_1">
+<span class="text-[0.7rem] whitespace-nowrap font-bold">(Attendant)</span>
+</div>
+<div class="flex items-end gap-1 mt-1 min-w-0">
+<span class="font-bold">2)</span>
+<input type="text" class="consent-input flex-grow min-w-0" id="witness_2">
+<span class="text-[0.7rem] whitespace-nowrap font-bold">(Staff)</span>
+</div>
+</div>
+<div class="flex items-end gap-2 mt-1 min-w-0">
+<span class="font-bold whitespace-nowrap text-[0.8rem]">Date / Time</span>
+<input type="text" class="consent-input flex-grow min-w-0" id="date_time">
+</div>
+</div>
+<div class="flex flex-col justify-between min-w-0">
+<div class="flex flex-col">
+<span class="font-bold text-[0.8rem] leading-snug">Signature of Legal Guardian (In case of minor</span>
+<span class="font-bold text-[0.8rem] leading-snug">or patients not capable of giving consent)</span>
+<input type="text" class="consent-input w-full mt-7" id="guardian_sig">
+</div>
+<div class="flex items-end gap-1.5 mt-auto w-full min-w-0">
+<span class="font-bold whitespace-nowrap text-[0.78rem]">Relationship with patient</span>
+<input type="text" class="consent-input flex-grow min-w-0" id="relation">
+</div>
+</div>
+</div>
+</form>
+
+<!-- CM016 - Hospital Footer -->
+<div class="footer">
+<p class="address-text">Address : Church Masjid Street, ALLAGADDA - 518543, Nandyal District, Andhra Pradesh.</p>
+<p class="text-[0.48rem] font-bold mt-0.5">© 2026 All Rights Reserved | Dr. S. Venkata Subba Reddy Multispeciality Hospital | Architected by Sri Veda Org.</p>
+</div>
+
+</div>
+</div>
+
+<script>
+
+// CM017 - Print and Modal Handlers
+function triggerNativePrint_9281() { window.print(); }
+function showResetModal_5921() { const modal = document.getElementById('resetModal_9102'); const card = document.getElementById('modalCard_9102'); modal.classList.remove('hidden'); setTimeout(() => { card.classList.remove('scale-95'); card.classList.add('scale-100'); }, 10); }
+function hideResetModal_5921() { const card = document.getElementById('modalCard_9102'); const modal = document.getElementById('resetModal_9102'); card.classList.remove('scale-100'); card.classList.add('scale-95'); setTimeout(() => { modal.classList.add('hidden'); }, 150); }
+function confirmResetForm_3821() { document.getElementById('consentForm_8291').reset(); localStorage.removeItem('vsr_consent_data'); hideResetModal_5921(); }
+
+// CM018 - Form State Management
+const saveFormState_8291 = () => { const data = {}; document.querySelectorAll('.consent-input').forEach(input => { data[input.id] = input.value; }); localStorage.setItem('vsr_consent_data', JSON.stringify(data)); };
+const loadFormState_8291 = () => { const data = JSON.parse(localStorage.getItem('vsr_consent_data') || '{}'); Object.keys(data).forEach(id => { const el = document.getElementById(id); if (el) el.value = data[id]; }); };
+
+// CM019 - Event Listeners
+document.getElementById('consentForm_8291').addEventListener('input', saveFormState_8291);
+window.addEventListener('DOMContentLoaded', loadFormState_8291);
+
+</script>
+</body>
+</html>
