@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Staff Attendance</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@300;400;700;900&display=swap" rel="stylesheet">
+<style>
+
+/* CM001 - General Styles */
+body { font-family: 'Roboto Slab', serif; display: flex; flex-direction: column; min-height: 100vh; background-color: #e0e5ec; margin: 0; padding: 0; color: #4a5568; }
+.no-print { display: block; }
+.hd-text { font-size: 14px; }
+.patient-corner-box { background-color: transparent; color: #2d3748; padding: 2px 8px; border-radius: 4px; font-size: 10px; display: inline-block; margin-top: 4px; border: 1px solid #cbd5e0; }
+.dot-blink { height: 8px; width: 8px; background-color: #48bb78; border-radius: 50%; display: inline-block; margin-right: 4px; animation: blink 1s infinite; }
+@keyframes blink { 0% { opacity: 1; } 50% { opacity: 0; } 100% { opacity: 1; } }
+
+/* CM002 - Neumorphism & UI Elements */
+.neu-box { background: #e0e5ec; box-shadow: 5px 5px 10px #bec3c9, -5px -5px 10px #ffffff; border-radius: 12px; }
+.neu-box-inset { background: #e0e5ec; box-shadow: inset 5px 5px 10px #bec3c9, inset -5px -5px 10px #ffffff; border-radius: 8px; border: none; outline: none; }
+.neu-btn { background: #e0e5ec; box-shadow: 4px 4px 8px #bec3c9, -4px -4px 8px #ffffff; border-radius: 8px; transition: all 0.2s ease-in-out; border: none; cursor: pointer; color: #4a5568; font-weight: bold; }
+.neu-btn:active { box-shadow: inset 4px 4px 8px #bec3c9, inset -4px -4px 8px #ffffff; }
+.neu-btn-primary { color: #3182ce; }
+.neu-btn-danger { color: #e53e3e; }
+.neu-btn-success { color: #38a169; }
+
+/* CM003 - Grid and Tables */
+.table-container { width: 100%; border-radius: 12px; overflow: hidden; }
+.table-compact th, .table-compact td { padding: 4px 6px; font-size: 9px; }
+.table-compact th { background-color: transparent; border-bottom: 2px solid #cbd5e0; color: #2d3748; }
+.table-compact tr { border-bottom: 1px solid #e2e8f0; }
+
+/* CM004 - Modals & Overlays */
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(224, 229, 236, 0.8); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 1000; }
+#toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #2d3748; color: white; padding: 8px 16px; border-radius: 20px; font-size: 10px; font-weight: bold; z-index: 2000; display: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+#dataLoadingOverlay { position: fixed; inset: 0; background: #e0e5ec; z-index: 9999; display: none; flex-direction: column; justify-content: center; align-items: center; }
+
+/* CM005 - Round Punch Button */
+.punch-round-btn { width: 100px; height: 100px; border-radius: 50%; background: #e0e5ec; box-shadow: 6px 6px 12px #bec3c9, -6px -6px 12px #ffffff; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; transition: all 0.2s; border: none; margin: 0 auto; }
+.punch-round-btn:active { box-shadow: inset 6px 6px 12px #bec3c9, inset -6px -6px 12px #ffffff; }
+.punch-round-btn.success { color: #38a169; box-shadow: inset 4px 4px 8px #bec3c9, inset -4px -4px 8px #ffffff; }
+.live-time-display { font-size: 14px; font-weight: 900; color: #2b6cb0; }
+.punch-label { font-size: 9px; font-weight: bold; text-transform: uppercase; color: #4a5568; margin-top: 4px; }
+
+</style>
+</head>
+<body>
+
+<!-- CM006 - Header Section -->
+<header class="neu-box m-2 p-2 no-print relative flex flex-col md:flex-row justify-between items-center gap-2">
+<div class="flex items-center space-x-3">
+<img id="headerLogo" src="https://dsvsrh.github.io/DRSVR-IMG-2026/IMG_01_HEDER_LOGO_MAIN.png" onerror="this.onerror=null; this.src='https://placehold.co/100x100/e0e5ec/2b6cb0?text=VSR';" alt="Logo" class="h-12 drop-shadow-md rounded-full">
+<div>
+<h1 class="font-bold text-xs uppercase" style="color:#2b6cb0;">Dr. S. Venkata Subba Reddy MULTISPECIALTY Hospital</h1>
+<p class="text-[9px] font-bold uppercase tracking-tight" style="color:#4a5568;">SINCE 1989 - "Best Of Care, Close to Home"</p>
+<div class="patient-corner-box font-bold uppercase">Attendance Portal</div>
+</div>
+</div>
+<div class="text-right">
+<div class="flex items-center justify-end text-gray-600 font-bold text-[9px] mb-1"><span class="dot-blink"></span> LIVE</div>
+<div id="liveDateTimeHeader" class="text-[10px] font-bold text-gray-700 uppercase">Loading...</div>
+</div>
+</header>
+
+<!-- CM007 - Loading Overlay -->
+<div id="dataLoadingOverlay" class="hidden">
+<div class="w-12 h-12 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin mb-4 shadow-lg"></div>
+<span class="font-bold text-gray-600 text-xs uppercase tracking-widest">Processing...</span>
+</div>
+
+<!-- CM008 - Login Panel -->
+<main id="loginSection" class="flex-grow flex items-center justify-center p-2 relative z-50">
+<div class="neu-box p-6 w-full max-w-[280px]">
+<div class="text-center mb-6">
+<i class="fas fa-fingerprint text-3xl text-blue-500 mb-2 drop-shadow-md"></i>
+<h2 class="text-sm font-black text-gray-700 uppercase tracking-wide">Staff Portal</h2>
+</div>
+<div class="flex gap-2 mb-4">
+<button id="tabStaff" onclick="switchTab('staff')" class="neu-btn neu-btn-primary flex-1 py-1 text-[10px]">Staff</button>
+<button id="tabAdmin" onclick="switchTab('admin')" class="neu-btn flex-1 py-1 text-[10px]">Admin</button>
+</div>
+<div class="space-y-4">
+<div>
+<input type="text" id="userId" placeholder="ID / Name" class="focus-next w-full py-2 px-3 neu-box-inset text-[10px] font-bold text-gray-700" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9 ]/g, '')">
+</div>
+<div>
+<input type="password" id="userPass" placeholder="Password (4 Digits)" class="focus-next w-full py-2 px-3 neu-box-inset text-[10px] font-bold text-gray-700 tracking-widest" maxlength="4" pattern="\d{4}">
+</div>
+<div class="text-right">
+<button onclick="openChangePassModal()" class="text-[9px] font-bold text-blue-500 hover:text-blue-700 uppercase cursor-pointer bg-transparent border-none">Change Password?</button>
+</div>
+<div id="loginErr" class="hidden text-red-500 text-[9px] font-bold text-center"></div>
+<button onclick="performLogin()" id="loginBtn" class="focus-next w-full neu-btn neu-btn-primary py-2 mt-2 text-[11px] uppercase flex justify-center items-center"><span id="loginBtnTxt">Login</span><i id="loginSpin" class="fas fa-spinner fa-spin ml-2 hidden"></i></button>
+</div>
+</div>
+</main>
+
+<!-- CM009 - Dashboard Section -->
+<section id="dashboardSection" class="hidden flex-grow flex-col p-2 w-full max-w-[1000px] mx-auto z-10 gap-2">
+<!-- Profile Card -->
+<div class="neu-box p-3 flex flex-col sm:flex-row justify-between items-center gap-2">
+<div class="flex items-center gap-3 w-full sm:w-auto">
+<div class="w-10 h-10 rounded-full neu-box flex items-center justify-center font-bold text-blue-600 text-sm" id="empInitials">--</div>
+<div>
+<h2 class="text-xs font-black text-gray-800 uppercase" id="empNameDisp">--</h2>
+<p class="text-[9px] font-bold text-gray-500 uppercase flex items-center gap-1 mt-0.5"><span id="empRoleDisp">--</span> | <span id="empBlockDisp" class="text-blue-600">--</span></p>
+</div>
+</div>
+<div class="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+<div class="neu-box-inset px-2 py-1 flex items-center gap-2">
+<span class="text-[8px] font-bold text-gray-500 uppercase">Shift: <span id="empShiftDisp" class="text-gray-800 text-[10px]">--</span></span>
+<button onclick="openShiftChangeModal(currentUser.empId, currentUser.fullName)" class="text-blue-500 hover:text-blue-700 cursor-pointer bg-transparent border-none p-1"><i class="fas fa-exchange-alt"></i></button>
+</div>
+<button onclick="logout()" class="neu-btn neu-btn-danger px-3 py-1 flex items-center gap-1 text-[9px]"><i class="fas fa-power-off"></i> Logout</button>
+</div>
+</div>
+
+<!-- CM010 - Round Live Location Punch -->
+<div class="neu-box p-3 text-center">
+<h3 class="text-[10px] font-black text-gray-600 uppercase mb-3"><i class="fas fa-map-marker-alt text-blue-500 mr-1"></i> Live Geo-Punch</h3>
+<div id="punchButtonsContainer" class="flex flex-wrap justify-center gap-4">
+<!-- Punch buttons will be injected here -->
+</div>
+<div id="geoStatus" class="mt-3 text-[9px] font-bold text-gray-500 bg-gray-200/50 inline-block px-3 py-1 rounded-full border border-gray-300">Initializing GPS...</div>
+</div>
+
+<!-- CM011 - Stats & Ledger -->
+<div class="grid grid-cols-4 gap-2">
+<div class="neu-box p-2 text-center"><p class="text-[8px] font-bold text-gray-500 uppercase">Days</p><p class="text-sm font-black text-gray-700" id="statDays">0</p></div>
+<div class="neu-box p-2 text-center"><p class="text-[8px] font-bold text-green-600 uppercase">Present</p><p class="text-sm font-black text-green-700" id="statPresent">0</p></div>
+<div class="neu-box p-2 text-center"><p class="text-[8px] font-bold text-red-500 uppercase">Absent</p><p class="text-sm font-black text-red-600" id="statAbsent">0</p></div>
+<div class="neu-box p-2 text-center"><p class="text-[8px] font-bold text-yellow-600 uppercase">Pending</p><p class="text-sm font-black text-yellow-700" id="statPending">0</p></div>
+</div>
+
+<div class="neu-box p-2">
+<div class="flex justify-between items-center mb-2">
+<h3 class="text-[10px] font-black text-gray-700 uppercase"><i class="fas fa-list text-gray-500 mr-1"></i> Ledger</h3>
+<button onclick="fetchData()" class="neu-btn px-2 py-1 text-[8px]"><i class="fas fa-sync-alt"></i></button>
+</div>
+<div class="table-container">
+<table class="w-full text-left table-compact"><thead id="attendanceHead"></thead><tbody id="attendanceBody"></tbody></table>
+</div>
+</div>
+
+<div class="neu-box p-2">
+<div class="flex justify-between items-center mb-2">
+<h3 class="text-[10px] font-black text-gray-700 uppercase"><i class="fas fa-envelope text-gray-500 mr-1"></i> Requests</h3>
+<button onclick="openRequestModal()" class="neu-btn neu-btn-primary px-2 py-1 text-[8px]"><i class="fas fa-plus"></i> New</button>
+</div>
+<div class="table-container">
+<table class="w-full text-left table-compact"><thead><tr><th>Date</th><th>Type</th><th>Status</th></tr></thead><tbody id="requestsBody"></tbody></table>
+</div>
+</div>
+</section>
+
+<!-- CM012 - Modals -->
+<div id="changePassModal" class="modal-overlay">
+<div class="neu-box p-5 w-full max-w-[260px]">
+<h3 class="text-[11px] font-black text-gray-700 uppercase mb-4 text-center">Change Password</h3>
+<div class="space-y-3">
+<input type="password" id="cpOld" placeholder="Current PIN (4 digits)" class="w-full py-1.5 px-2 neu-box-inset text-[10px] font-bold tracking-widest text-center" maxlength="4">
+<input type="password" id="cpNew" placeholder="New PIN (4 digits)" class="w-full py-1.5 px-2 neu-box-inset text-[10px] font-bold tracking-widest text-center text-blue-600" maxlength="4">
+<input type="password" id="cpConf" placeholder="Confirm PIN" class="w-full py-1.5 px-2 neu-box-inset text-[10px] font-bold tracking-widest text-center text-green-600" maxlength="4">
+<div class="flex gap-2 mt-4">
+<button onclick="closeModal('changePassModal')" class="neu-btn flex-1 py-1.5 text-[9px]">Cancel</button>
+<button onclick="submitChangePassword()" class="neu-btn neu-btn-primary flex-1 py-1.5 text-[9px]">Save</button>
+</div>
+</div>
+</div>
+</div>
+
+<div id="requestModal" class="modal-overlay">
+<div class="neu-box p-5 w-full max-w-[260px]">
+<h3 class="text-[11px] font-black text-gray-700 uppercase mb-4 text-center">Submit Request</h3>
+<div class="space-y-3">
+<input type="date" id="reqDate" class="w-full py-1.5 px-2 neu-box-inset text-[10px] font-bold text-gray-700">
+<select id="reqType" class="w-full py-1.5 px-2 neu-box-inset text-[10px] font-bold text-gray-700 uppercase" onchange="document.getElementById('reqTimeGroup').style.display=this.value==='Punch Modification'?'block':'none'">
+<option value="Punch Modification">Punch Modification</option><option value="Leave Apply">Leave Apply</option><option value="Emergency Leave">Emergency Leave</option>
+</select>
+<div id="reqTimeGroup"><input type="time" id="reqTime" class="w-full py-1.5 px-2 neu-box-inset text-[10px] font-bold text-gray-700"></div>
+<input type="text" id="reqDesc" placeholder="Reason..." class="w-full py-1.5 px-2 neu-box-inset text-[10px] font-bold text-gray-700">
+<div class="flex gap-2 mt-4">
+<button onclick="closeModal('requestModal')" class="neu-btn flex-1 py-1.5 text-[9px]">Cancel</button>
+<button onclick="submitRequestForm()" class="neu-btn neu-btn-primary flex-1 py-1.5 text-[9px]">Submit</button>
+</div>
+</div>
+</div>
+</div>
+
+<div id="shiftChangeModal" class="modal-overlay">
+<div class="neu-box p-5 w-full max-w-[240px]">
+<h3 class="text-[11px] font-black text-gray-700 uppercase mb-3 text-center">Change Shift</h3>
+<input type="hidden" id="shiftEmpId">
+<div class="flex flex-col gap-2">
+<button onclick="applyShiftChange('4')" class="neu-btn py-2 text-[9px]">4 PUNCHES</button>
+<button onclick="applyShiftChange('2')" class="neu-btn py-2 text-[9px]">2 PUNCHES</button>
+<button onclick="applyShiftChange('NIGHT')" class="neu-btn py-2 text-[9px]">NIGHT SHIFT</button>
+<button onclick="closeModal('shiftChangeModal')" class="neu-btn neu-btn-danger py-2 text-[9px] mt-2">Cancel</button>
+</div>
+</div>
+</div>
+<div id="toast"></div>
+
+<script>
+/* CM013 - Constants & Globals */
+const API_URL = 'https://script.google.com/macros/s/AKfycbwGLEq4sys_sARCqTimEFhZgV0Eh7mnqWPLw4dQTvgYiMug3ozyQZ9ZbCIbHnMWLiPYQw/exec';
+const HOSP_LAT = 15.1329698, HOSP_LNG = 78.5121124, MAX_DIST_METERS = 10;
+let currentTab = 'staff', currentUser = null, globalAttendance = [], globalRequests = [], liveTimeInterval;
+
+/* CM014 - Utility Functions */
+const showToast = (msg) => { const t = document.getElementById('toast'); t.innerText = msg; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 3000); };
+const showLoad = () => document.getElementById('dataLoadingOverlay').style.display = 'flex';
+const hideLoad = () => document.getElementById('dataLoadingOverlay').style.display = 'none';
+const openModal = (id) => document.getElementById(id).style.display = 'flex';
+const closeModal = (id) => document.getElementById(id).style.display = 'none';
+const getDist = (lat1, lon1, lat2, lon2) => { const R = 6371e3, p1 = lat1 * Math.PI/180, p2 = lat2 * Math.PI/180, dp = (lat2-lat1) * Math.PI/180, dl = (lon2-lon1) * Math.PI/180; const a = Math.sin(dp/2) * Math.sin(dp/2) + Math.cos(p1) * Math.cos(p2) * Math.sin(dl/2) * Math.sin(dl/2); return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))); };
+const updateClock = () => { const dt = new Date(), t = dt.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:true}); document.getElementById('liveDateTimeHeader').innerText = t; const lts = document.querySelectorAll('.live-time-display'); lts.forEach(el => el.innerText = t); }; setInterval(updateClock, 1000); updateClock();
+
+/* CM015 - Auth & UI Logic */
+const switchTab = (tab) => { currentTab=tab; document.getElementById('tabStaff').classList.toggle('neu-btn-primary', tab==='staff'); document.getElementById('tabAdmin').classList.toggle('neu-btn-primary', tab==='admin'); };
+const performLogin = async () => { const u=document.getElementById('userId').value, p=document.getElementById('userPass').value, err=document.getElementById('loginErr'); if(!u||!p){ err.innerText="Enter ID and Password"; err.style.display='block'; return; } err.style.display='none'; document.getElementById('loginSpin').classList.remove('hidden'); try{ const res=await fetch(API_URL, {method:'POST', body:JSON.stringify({action:'login', username:u, password:p})}); const data=await res.json(); if(data.success){ currentUser=data.employeeData; updateProfileHeader(); document.getElementById('loginSection').classList.add('hidden'); document.getElementById('dashboardSection').classList.remove('hidden'); document.getElementById('dashboardSection').classList.add('flex'); fetchData(); }else{ err.innerText=data.message; err.style.display='block'; } }catch(e){ err.innerText="Network Error"; err.style.display='block'; }finally{ document.getElementById('loginSpin').classList.add('hidden'); } };
+const logout = () => { currentUser=null; document.getElementById('dashboardSection').classList.add('hidden'); document.getElementById('dashboardSection').classList.remove('flex'); document.getElementById('loginSection').classList.remove('hidden'); document.getElementById('userId').value=''; document.getElementById('userPass').value=''; };
+const updateProfileHeader = () => { document.getElementById('empInitials').innerText=currentUser.empName.substring(0,2); document.getElementById('empNameDisp').innerText=currentUser.empName; document.getElementById('empRoleDisp').innerText=currentUser.role; let b=currentUser.block.toUpperCase(); document.getElementById('empBlockDisp').innerText=b.includes('MAIN 1')?'DR VSR HOSPITAL':(b.includes('MAIN 2')?'EYE BONE TRAUMA CARE':b); document.getElementById('empShiftDisp').innerText=currentUser.shiftType; };
+
+/* CM016 - Password Change */
+const openChangePassModal = () => { if(!document.getElementById('userId').value) return showToast("Enter User ID first"); openModal('changePassModal'); };
+const submitChangePassword = async () => { const u=document.getElementById('userId').value, o=document.getElementById('cpOld').value, n=document.getElementById('cpNew').value, c=document.getElementById('cpConf').value; if(n!==c) return showToast("Passwords mismatch"); showLoad(); try{ const res=await fetch(API_URL, {method:'POST', body:JSON.stringify({action:'changePassword', username:u, oldPassword:o, newPassword:n})}); const data=await res.json(); hideLoad(); if(data.success){ showToast("Password Updated"); closeModal('changePassModal'); }else showToast(data.message); }catch(e){ hideLoad(); showToast("Network Error"); } };
+
+/* CM017 - Fetch Data & Render Ledger */
+const fetchData = async () => { showLoad(); try{ const res=await fetch(API_URL, {method:'POST', body:JSON.stringify({action:'getDashboardData', rowIndex:currentUser.rowIdx, shiftType:currentUser.shiftType, empId:currentUser.empId})}); const data=await res.json(); hideLoad(); if(data.success){ globalAttendance=data.attendance; globalRequests=data.requests; renderLedger(); renderRequests(); renderPunchInterface(); } }catch(e){ hideLoad(); showToast("Data sync failed"); } };
+const renderLedger = () => { const tb=document.getElementById('attendanceBody'), th=document.getElementById('attendanceHead'), s=currentUser.shiftType; let h=`<tr><th>Date</th>`; if(s==='4') h+=`<th>M-IN</th><th>M-OUT</th><th>E-IN</th><th>E-OUT</th>`; else if(s==='2') h+=`<th>M-IN</th><th>E-OUT</th>`; else if(s==='NIGHT') h+=`<th>N-IN</th><th>N-OUT</th>`; h+=`</tr>`; th.innerHTML=h; tb.innerHTML=''; let pCnt=0, aCnt=0, mCnt=0; const cDay=new Date().getDate(); globalAttendance.forEach(d=>{ let isP=false, html=`<tr><td class="font-bold">${String(d.day).padStart(2,'0')}-Day</td>`; const getT=(v,n)=> { let val=(v||"--").trim(); if(val!=="--"){ isP=true; return `<td>${val.includes('P(')?`<span class="text-red-500">${val}</span>`:val}</td>`; } if(d.day<=cDay){ mCnt++; return `<td><button onclick="openInlineReq(${d.day})" class="text-[7px] bg-yellow-100 text-yellow-700 px-1 py-0.5 rounded border border-yellow-300">REQ</button></td>`; } return `<td><span class="text-gray-300">--</span></td>`; }; if(s==='4'){ html+=getT(d.punches.morningIn,'M-IN')+getT(d.punches.morningOut,'M-OUT')+getT(d.punches.eveningIn,'E-IN')+getT(d.punches.eveningOut,'E-OUT'); }else if(s==='2'){ html+=getT(d.punches.morningIn,'M-IN')+getT(d.punches.eveningOut,'E-OUT'); }else if(s==='NIGHT'){ html+=getT(d.punches.nightIn,'N-IN')+getT(d.punches.nightOut,'N-OUT'); } html+=`</tr>`; if(isP || d.day<=cDay) tb.innerHTML+=html; if(d.day<=cDay) isP?pCnt++:aCnt++; }); document.getElementById('statDays').innerText=new Date(new Date().getFullYear(), new Date().getMonth()+1, 0).getDate(); document.getElementById('statPresent').innerText=pCnt; document.getElementById('statAbsent').innerText=aCnt; document.getElementById('statPending').innerText=mCnt; };
+
+/* CM018 - Live Geo Punch Logic */
+const renderPunchInterface = () => { const cont=document.getElementById('punchButtonsContainer'), s=currentUser.shiftType, today=globalAttendance.find(d=>d.day===new Date().getDate()); let html=''; const makeBtn=(lbl, val)=>{ const isDone=val&&val!=='--'; return `<button class="punch-round-btn ${isDone?'success':''}" ${isDone?'disabled':''} onclick="doGeoPunch('${lbl}')"><div class="live-time-display">${isDone?'<i class="fas fa-check"></i>':''}</div><div class="punch-label">${lbl}</div>${isDone?`<div class="text-[7px] mt-1 text-gray-500">${val}</div>`:''}</button>`; }; if(s==='4'){ html+=makeBtn('M-IN', today?.punches.morningIn)+makeBtn('M-OUT', today?.punches.morningOut)+makeBtn('E-IN', today?.punches.eveningIn)+makeBtn('E-OUT', today?.punches.eveningOut); }else if(s==='2'){ html+=makeBtn('M-IN', today?.punches.morningIn)+makeBtn('E-OUT', today?.punches.eveningOut); }else if(s==='NIGHT'){ html+=makeBtn('N-IN', today?.punches.nightIn)+makeBtn('N-OUT', today?.punches.nightOut); } cont.innerHTML=html; updateClock(); };
+const doGeoPunch = (type) => { const st=document.getElementById('geoStatus'); st.innerText="Checking location..."; st.className="mt-3 text-[9px] font-bold text-yellow-600 bg-yellow-50 px-3 py-1 rounded-full border border-yellow-200"; if(navigator.geolocation){ navigator.geolocation.getCurrentPosition(async pos=>{ const d=getDist(pos.coords.latitude, pos.coords.longitude, HOSP_LAT, HOSP_LNG); if(d<=MAX_DIST_METERS){ st.innerText=`Location verified (${Math.round(d)}m). Saving...`; st.className="mt-3 text-[9px] font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full border border-green-200"; try{ const res=await fetch(API_URL, {method:'POST', body:JSON.stringify({action:'submitRequest', data:{empId:currentUser.empId, empName:currentUser.empName, block:currentUser.block, dayNumber:new Date().getDate(), punchType:'Punch Modification', requestedTime:new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}), description:`LIVE PUNCH: ${type}`}})}); const data=await res.json(); if(data.success){ showToast(`${type} Successful!`); fetchData(); }else throw new Error(data.message); }catch(e){ st.innerText="Failed to save punch"; st.className="mt-3 text-[9px] font-bold text-red-600 bg-red-50 px-3 py-1 rounded-full border border-red-200"; } }else{ st.innerText=`Too far! (${Math.round(d)}m). Must be within ${MAX_DIST_METERS}m.`; st.className="mt-3 text-[9px] font-bold text-red-600 bg-red-50 px-3 py-1 rounded-full border border-red-200"; } }, err=>{ st.innerText="GPS Access Denied"; st.className="mt-3 text-[9px] font-bold text-red-600 bg-red-50 px-3 py-1 rounded-full border border-red-200"; showToast("Enable Location Services"); }, {enableHighAccuracy:true, timeout:10000, maximumAge:0}); }else showToast("Geolocation unsupported"); };
+
+/* CM019 - Requests & Shift Changes */
+const renderRequests = () => { const tb=document.getElementById('requestsBody'); tb.innerHTML=''; if(globalRequests.length===0){ tb.innerHTML=`<tr><td colspan="3" class="text-center py-2 text-gray-400">No Requests</td></tr>`; return; } globalRequests.forEach(r=>{ let dt=r.dayNumber, st=r.status.toLowerCase(); let badge=st==='pending'?'text-yellow-600 bg-yellow-100':(st==='approved'?'text-green-600 bg-green-100':'text-gray-600 bg-gray-100'); tb.innerHTML+=`<tr><td>${dt}</td><td>${r.punchType}</td><td><span class="px-1 py-0.5 rounded text-[8px] uppercase ${badge}">${r.status}</span></td></tr>`; }); };
+const openRequestModal = () => { const d=new Date(); document.getElementById('reqDate').value=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; document.getElementById('reqType').value='Punch Modification'; document.getElementById('reqTime').value=''; document.getElementById('reqDesc').value=''; document.getElementById('reqTimeGroup').style.display='block'; openModal('requestModal'); };
+const openInlineReq = (day) => { openRequestModal(); const d=new Date(); document.getElementById('reqDate').value=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`; document.getElementById('reqDesc').value=`Missing Punch for day ${day}`; };
+const submitRequestForm = async () => { const dt=document.getElementById('reqDate').value, rt=document.getElementById('reqType').value, rawT=document.getElementById('reqTime').value, desc=document.getElementById('reqDesc').value; if(!dt) return showToast("Select Date"); if(rt!=='Punch Modification' && !desc) return showToast("Description required for Leave"); let ft=""; if(rawT && rt==='Punch Modification'){ let [h,m]=rawT.split(':'), ap=h>=12?'PM':'AM'; h=h%12||12; ft=`${String(h).padStart(2,'0')}:${m} ${ap}`; } showLoad(); try{ const res=await fetch(API_URL, {method:'POST', body:JSON.stringify({action:'submitRequest', data:{empId:currentUser.empId, empName:currentUser.empName, block:currentUser.block, dayNumber:dt, punchType:rt, requestedTime:ft, description:desc}})}); const data=await res.json(); hideLoad(); if(data.success){ showToast("Request Submitted"); closeModal('requestModal'); fetchData(); }else showToast(data.message); }catch(e){ hideLoad(); showToast("Network Error"); } };
+const openShiftChangeModal = (id, name) => { document.getElementById('shiftEmpId').value=id; openModal('shiftChangeModal'); };
+const applyShiftChange = async (newShift) => { showLoad(); try{ const res=await fetch(API_URL, {method:'POST', body:JSON.stringify({action:'changeShift', empId:currentUser.empId, newShift:newShift})}); const data=await res.json(); hideLoad(); if(data.success){ showToast("Shift Updated"); closeModal('shiftChangeModal'); currentUser.shiftType=newShift; updateProfileHeader(); fetchData(); }else showToast(data.message); }catch(e){ hideLoad(); showToast("Network Error"); } };
+
+</script>
+</body>
+</html>
