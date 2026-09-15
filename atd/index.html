@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -16,7 +16,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@300;400;700;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
-
 /* CM001 - Global Body */
 body { font-family: 'Roboto Slab', serif; display: flex; flex-direction: column; height: 100vh; background-color: #e0e5ec; margin: 0; padding: 0; color: #4a5568; overflow: hidden; }
 
@@ -29,7 +28,7 @@ body { font-family: 'Roboto Slab', serif; display: flex; flex-direction: column;
 /* CM004 - Tables */
 .table-container { width: 100%; border-radius: 6px; overflow: auto; } .table-compact th, .table-compact td { padding: 4px 6px; font-size: 10px; } .table-compact th { background-color: #edf2f7; border-bottom: 1px solid #cbd5e0; color: #2d3748; font-weight: 900; } .table-compact tr { border-bottom: 1px solid #e2e8f0; } .admin-grid-th { min-width: 65px; text-align: center; font-size: 11px; padding: 4px; border-right: 1px solid #cbd5e0; background-color: #edf2f7; z-index: 30; } .admin-grid-td { text-align: center; font-size: 11px; font-weight: bold; cursor: pointer; border: 1px solid #e2e8f0; padding: 2px; vertical-align: top; background-color: #ffffff; min-width: 65px; } .admin-grid-td:hover { background-color: #e2e8f0; } .time-pill { background-color: #f7fafc; border: 1px solid #e2e8f0; border-radius: 2px; padding: 3px; margin-bottom: 2px; font-size: 9px; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #2b6cb0; line-height: 1.2; min-height: 20px; } .time-pill.empty { color: #a0aec0; background-color: transparent; border: 1px dashed #e2e8f0; justify-content: center; } .time-pill.leave { color: #c53030; background-color: #fff5f5; border-color: #feb2b2; font-weight: 900; }
 
-/* CM005 - Modals */
+/* CM005 - Modals & Overlays */
 .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(224, 229, 236, 0.8); backdrop-filter: blur(3px); display: none; justify-content: center; align-items: center; z-index: 1000; } #toast { position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); background: #2d3748; color: white; padding: 10px 20px; border-radius: 12px; font-size: 12px; font-weight: bold; z-index: 2000; display: none; box-shadow: 0 4px 6px rgba(0,0,0,0.2); } #dataLoadingOverlay { position: fixed; inset: 0; background: rgba(224, 229, 236, 0.9); backdrop-filter: blur(3px); z-index: 9999; display: none; flex-direction: column; justify-content: center; align-items: center; }
 
 /* CM006 - Geo Punch Buttons */
@@ -137,8 +136,13 @@ body { font-family: 'Roboto Slab', serif; display: flex; flex-direction: column;
 </div>
 </div>
 <div id="adminReqsTab" class="bg-gray-100 p-0 hidden flex-col gap-0 h-full overflow-hidden w-full">
+<!-- Admin Bulk Approval Header -->
+<div class="flex justify-between items-center bg-white p-2 border-b border-gray-300 shadow-sm z-20">
+<span class="text-[11px] font-black text-gray-700 uppercase tracking-widest"><i class="fas fa-tasks text-purple-600 mr-1"></i> User Requests</span>
+<button onclick="adminBulkApprove()" id="bulkApproveBtn" class="neu-btn neu-btn-success px-3 py-1.5 text-[10px] uppercase font-black tracking-widest flex items-center gap-1 hidden bg-green-50 border border-green-200"><i class="fas fa-check-double"></i> Approve Selected</button>
+</div>
 <div class="table-container bg-white overflow-auto h-full w-full">
-<table class="w-full text-left table-compact min-w-[800px]"><thead class="bg-gray-200/80 sticky top-0 z-10 shadow-sm"><tr><th>REQ ID</th><th>EMP ID</th><th>NAME</th><th>DATE</th><th>INFO</th><th>PUNCH TIME</th><th>TIME</th><th>DESC</th><th>ACTION</th></tr></thead><tbody id="adminRequestsBody"></tbody></table>
+<table class="w-full text-left table-compact min-w-[850px]"><thead class="bg-gray-200/80 sticky top-0 z-10 shadow-sm"><tr><th class="text-center w-8"><input type="checkbox" id="selectAllReqs" onclick="toggleAllReqs(this)" class="w-3.5 h-3.5 cursor-pointer accent-blue-600"></th><th>REQ ID</th><th>EMP ID</th><th>NAME</th><th>DATE</th><th>INFO</th><th>PUNCH TIME</th><th>TIME</th><th>DESC</th><th>ACTION</th></tr></thead><tbody id="adminRequestsBody"></tbody></table>
 </div>
 </div>
 </section>
@@ -155,7 +159,8 @@ body { font-family: 'Roboto Slab', serif; display: flex; flex-direction: column;
 
 <script>
 /* CM014 - JS Constants & Utils */
-const API_URL = 'https://script.google.com/macros/s/AKfycbzWKaCqsDKWfEZnII1NmVZwEHchRYTWrq0-vDn6Tjd9FTVDxZz5yuJ4JLtGh_Nf0OhVEw/exec';
+// Updated to the NEW API URL
+const API_URL = 'https://script.google.com/macros/s/AKfycbxr1BSzT5_aedrZ4nRLo3JIt5zzb82rcRMJ9ipftISdNffyhHP5SPKGTXg-vTWgi7rs/exec';
 const HOSP_LAT = 15.1324468;
 const HOSP_LNG = 78.5113869;
 const MAX_DIST_METERS = 20;
@@ -166,6 +171,7 @@ let globalDaysInMonth = 30;
 let adminAllEmployees = [];
 let adminCurrentMonth = "";
 let globalAdminRequests = [];
+
 const showToast = (msg) => { const t = document.getElementById('toast'); t.innerHTML = msg; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 3000); };
 const showLoad = (msg="Processing...") => { document.getElementById('loadingText').innerText = msg; document.getElementById('dataLoadingOverlay').style.display = 'flex'; };
 const hideLoad = () => { document.getElementById('dataLoadingOverlay').style.display = 'none'; };
@@ -173,13 +179,23 @@ const openModal = (id) => { document.getElementById(id).style.display = 'flex'; 
 const closeModal = (id) => { document.getElementById(id).style.display = 'none'; };
 const getDist = (lat1, lon1, lat2, lon2) => { const R = 6371e3; const p1 = lat1 * Math.PI/180; const p2 = lat2 * Math.PI/180; const dp = (lat2-lat1) * Math.PI/180; const dl = (lon2-lon1) * Math.PI/180; const a = Math.sin(dp/2) * Math.sin(dp/2) + Math.cos(p1) * Math.cos(p2) * Math.sin(dl/2) * Math.sin(dl/2); return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))); };
 const getMonthStr = (mIdx) => { return ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"][mIdx]; };
+
+/* STRICT TIME PARSER - Enforces HH:MM AM/PM Format */
 const parseDateStringToTime = (t) => { 
     if(!t || t==='--') return '--'; 
-    let str = String(t).trim();
-    if(str.includes('LEAVE') || str.startsWith('P(')) return str;
+    let str = String(t).trim(); 
+    if(str.includes('LEAVE') || str.startsWith('P(')) return str; 
     
-    // Check if it's a full date string like "Sat Dec 30 1899..."
-    if(str.includes('GMT')||str.includes('1899')||str.includes('India Standard')||str.includes('T')){ 
+    let sheetTimeMatch = str.match(/(\d{2}):(\d{2}):\d{2}/); 
+    if(str.includes('1899') && sheetTimeMatch) { 
+        let h = parseInt(sheetTimeMatch[1], 10); 
+        let m = sheetTimeMatch[2]; 
+        let ap = h >= 12 ? 'PM' : 'AM'; 
+        h = h % 12 || 12; 
+        return `${String(h).padStart(2,'0')}:${m} ${ap}`; 
+    } 
+    
+    if(str.includes('GMT')||str.includes('India Standard')||str.includes('T')){ 
         let d = new Date(str); 
         if(!isNaN(d)){ 
             let h=d.getHours(), m=d.getMinutes(), ap=h>=12?'PM':'AM'; 
@@ -188,29 +204,22 @@ const parseDateStringToTime = (t) => {
         } 
     } 
     
-    // Match "HH:MM", "H:MM", "HH:MM:SS" with or without AM/PM
-    let timeMatch = str.match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM|am|pm)?/i);
-    if(timeMatch) {
-        let h = parseInt(timeMatch[1], 10);
-        let m = timeMatch[2];
-        let ap = timeMatch[3];
-
-        if (!ap) {
-             ap = h >= 12 ? 'PM' : 'AM';
-             h = h % 12 || 12;
-        } else {
-            ap = ap.toUpperCase();
-            // Handle edge cases if they entered military time but added AM/PM anyway
-            if (ap === 'PM' && h < 12) {
-                // leave h as is for 12hr format calculation below
-            } else if (ap === 'AM' && h === 12) {
-                // leave h as is for 12hr format calculation below
-            }
-        }
-        return `${String(h).padStart(2,'0')}:${m} ${ap}`;
-    }
+    let timeMatch = str.match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM|am|pm)?/i); 
+    if(timeMatch) { 
+        let h = parseInt(timeMatch[1], 10); 
+        let m = timeMatch[2]; 
+        let ap = timeMatch[3]; 
+        if (!ap) { 
+            ap = h >= 12 ? 'PM' : 'AM'; 
+            h = h % 12 || 12; 
+        } else { 
+            ap = ap.toUpperCase(); 
+        } 
+        return `${String(h).padStart(2,'0')}:${m} ${ap}`; 
+    } 
     return str; 
 };
+
 setInterval(() => { const d = new Date(); const days = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"]; let h = d.getHours(); let m = d.getMinutes(); let s = d.getSeconds(); const ampm = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; document.getElementById('headerLiveTime').innerText = `${days[d.getDay()]} ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')} ${ampm}`; }, 1000);
 
 /* CM015 - JS Auto Login Check & Branch Filter */
@@ -219,7 +228,23 @@ const handleLoginRouting = () => { document.getElementById('loginSection').class
 
 /* CM016 - JS Auth Functions */
 const performLogin = async () => { const u = document.getElementById('userId').value; const p = document.getElementById('userPass').value; const err = document.getElementById('loginErr'); const errSpan = err.querySelector('span'); if(!u || !p) { errSpan.innerText = "Enter Name and Password"; err.style.display = 'block'; return; } err.style.display = 'none'; document.getElementById('loginSpin').classList.remove('hidden'); try { const res = await fetch(API_URL, {method:'POST', body:JSON.stringify({action:'login', username:u, password:p})}); const data = await res.json(); if(data.success) { currentUser = data.employeeData; localStorage.setItem('svr_user_v2', JSON.stringify(currentUser)); handleLoginRouting(); } else { errSpan.innerText = data.message; err.style.display = 'block'; } } catch(e) { errSpan.innerText = "Network Error. Try again."; err.style.display = 'block'; } finally { document.getElementById('loginSpin').classList.add('hidden'); } };
-const logout = () => { currentUser = null; localStorage.removeItem('svr_user_v2'); document.getElementById('headerAuthSection').classList.add('hidden'); document.getElementById('headerAuthSection').classList.remove('flex'); document.title = 'SVR ATD'; document.getElementById('headerPortalTitle').innerText = 'ATTENDANCE SYSTEM'; document.getElementById('dashboardSection').classList.add('hidden'); document.getElementById('dashboardSection').classList.remove('flex'); document.getElementById('adminDashboardSection').classList.add('hidden'); document.getElementById('adminDashboardSection').classList.remove('flex'); document.getElementById('loginSection').classList.remove('hidden'); document.getElementById('userId').value = ''; document.getElementById('userPass').value = ''; };
+
+// లాగౌట్ చేసినప్పుడు క్యాష్ (Local Storage) మొత్తం క్లియర్ అయ్యేలా మార్పు చేశాను
+const logout = () => { 
+    currentUser = null; 
+    localStorage.clear(); // Complete Cache Wipe
+    document.getElementById('headerAuthSection').classList.add('hidden'); 
+    document.getElementById('headerAuthSection').classList.remove('flex'); 
+    document.title = 'SVR ATD'; 
+    document.getElementById('headerPortalTitle').innerText = 'ATTENDANCE SYSTEM'; 
+    document.getElementById('dashboardSection').classList.add('hidden'); 
+    document.getElementById('dashboardSection').classList.remove('flex'); 
+    document.getElementById('adminDashboardSection').classList.add('hidden'); 
+    document.getElementById('adminDashboardSection').classList.remove('flex'); 
+    document.getElementById('loginSection').classList.remove('hidden'); 
+    document.getElementById('userId').value = ''; 
+    document.getElementById('userPass').value = ''; 
+};
 
 /* CM017 - JS Standard Employee UI */
 const updateProfileHeader = () => { document.getElementById('empNameDisp').innerText = currentUser.empName; document.getElementById('empInitials').innerText = currentUser.empName.charAt(0); document.getElementById('empRoleDisp').innerText = currentUser.role; let b = currentUser.block.toUpperCase(); document.getElementById('empBlockDisp').innerText = b.includes('MAIN 1') ? 'DR VSR HOSPITAL' : (b.includes('MAIN 2') ? 'EYE BONE TRAUMA CARE' : b); document.getElementById('empShiftDisp').innerText = currentUser.shiftType; document.getElementById('pdfEmpName').innerText = currentUser.empName + " (" + currentUser.empId + ")"; document.getElementById('pdfEmpDetails').innerText = "ROLE: " + currentUser.role + " | SHIFT: " + currentUser.shiftType; };
@@ -248,70 +273,76 @@ const applyShiftChange = async (newShift) => { showLoad("Changing Shift..."); tr
 const switchAdminTab = (tab) => { document.getElementById('adminGridTab').style.display = tab === 'grid' ? 'flex' : 'none'; document.getElementById('adminReqsTab').style.display = tab === 'reqs' ? 'flex' : 'none'; };
 const fetchAdminData = async (monthOverride = '') => { showLoad("Loading Admin Dashboard..."); document.getElementById('adminGridError').classList.add('hidden'); document.getElementById('adminGridBody').innerHTML = ''; try { const res = await fetch(API_URL, {method:'POST', body:JSON.stringify({action:'adminGetData', reqMonthSheet:monthOverride})}); const data = await res.json(); hideLoad(); if(data.success) { let ab = 'ALL'; const m1 = ['YASWANTH', 'HANEESHA', 'NARASIMHAREDDY']; const m2 = ['LAKSHMIREDDY', 'CHANDRIKA']; if(m1.includes(currentUser.empName)) ab = 'MAIN 1'; if(m2.includes(currentUser.empName)) ab = 'MAIN 2'; adminAllEmployees = data.employees.filter(e => ab === 'ALL' || (e.block && e.block.toUpperCase().includes(ab))); const aIds = adminAllEmployees.map(e => e.empId.toString()); globalAdminRequests = (data.requests || []).filter(r => ab === 'ALL' || aIds.includes(r.empId.toString())); adminCurrentMonth = data.monthYear; renderAdminGrid(adminAllEmployees, data.daysInMonth); renderAdminReqs(globalAdminRequests); updateAdminEmpDropdown(); } else { document.getElementById('adminGridError').innerText = `Error: ${data.message}`; document.getElementById('adminGridError').classList.remove('hidden'); showToast(data.message); } } catch(e) { hideLoad(); document.getElementById('adminGridError').innerText = `Network Error. Ensure deployment is correct.`; document.getElementById('adminGridError').classList.remove('hidden'); showToast("Admin Sync Failed"); } };
 const renderAdminGrid = (emps, days) => { const hd = document.getElementById('adminGridHead').rows[0]; while(hd.cells.length > 1) { hd.deleteCell(1); } const curMonthName = adminCurrentMonth.substring(0, 3); for(let d=1; d<=days; d++) { let th = document.createElement('th'); th.className = 'admin-grid-th sticky top-0 z-30 shadow-sm'; th.innerHTML = `<i class="fas fa-calendar-day text-[9px] text-gray-400 mr-1 block sm:inline"></i><span class="whitespace-nowrap">${d} ${curMonthName}</span>`; hd.appendChild(th); } const bd = document.getElementById('adminGridBody'); bd.innerHTML = ''; if(!emps || emps.length===0) { bd.innerHTML = `<tr><td colspan="32" class="text-center p-3 text-gray-500 font-bold uppercase tracking-widest text-[12px]">No Employee Data Found</td></tr>`; return; } const curDate = new Date(); const curMonthStr = getMonthStr(curDate.getMonth()) + curDate.getFullYear(); const isCurrentMonth = adminCurrentMonth === curMonthStr; const curDay = curDate.getDate(); emps.forEach(emp => { let pCnt=0; let aCnt=0; let mCnt=0; emp.attendance.forEach(x => { if((isCurrentMonth && x.day <= curDay) || !isCurrentMonth) { let p = x.punches; let mIn = (p.morningIn||"--").trim(); let mOut = (p.morningOut||"--").trim(); let eIn = (p.eveningIn||"--").trim(); let eOut = (p.eveningOut||"--").trim(); let nIn = (p.nightIn||"--").trim(); let nOut = (p.nightOut||"--").trim(); let isLeave = mIn.includes('LEAVE') || mOut.includes('LEAVE') || eIn.includes('LEAVE') || eOut.includes('LEAVE') || nIn.includes('LEAVE') || nOut.includes('LEAVE'); let isFullPresent = ((mIn !== "--" && eOut !== "--") || (nIn !== "--" && nOut !== "--")); let hasAnyPunch = (mIn !== "--" || mOut !== "--" || eIn !== "--" || eOut !== "--" || nIn !== "--" || nOut !== "--"); if(isLeave) { aCnt++; } else if(isFullPresent) { pCnt++; } else if(hasAnyPunch) { mCnt++; } else { aCnt++; } } }); let tr = document.createElement('tr'); tr.setAttribute('data-block', emp.block); let tdName = document.createElement('td'); tdName.className = 'font-black text-[10px] text-gray-800 border-b border-gray-300 p-2 whitespace-nowrap sticky left-0 bg-white z-20 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.3)] min-w-[150px] align-top'; let cName = emp.empName.replace(/^Dr\.\s*/i, '<i class="fas fa-user-nurse text-blue-500 mr-1"></i>'); tdName.innerHTML = `${cName} <br><span class="text-[9px] text-blue-600 font-bold">${emp.empId}</span> <span class="text-[9px] text-purple-600 font-bold ml-1 px-1 bg-purple-100 rounded">${emp.role}</span><br><div class="flex gap-1 mt-1"><span class="bg-green-100 text-green-700 px-1 rounded text-[9px] font-black" title="Present">P:${pCnt}</span><span class="bg-red-100 text-red-700 px-1 rounded text-[9px] font-black" title="Absent">A:${aCnt}</span><span class="bg-yellow-100 text-yellow-700 px-1 rounded text-[9px] font-black" title="Late/Pending">L:${mCnt}</span></div>`; tr.appendChild(tdName); for(let d=1; d<=days; d++) { let td = document.createElement('td'); td.className = 'admin-grid-td'; let dateStr = `${String(d).padStart(2,'0')}-${curMonthName}-${adminCurrentMonth.substring(3)}`; let pObj = emp.attendance.find(x => x.day === d); if(pObj) { let p = pObj.punches; let mIn = parseDateStringToTime(p.morningIn); let mOut = parseDateStringToTime(p.morningOut); let eIn = parseDateStringToTime(p.eveningIn); let eOut = parseDateStringToTime(p.eveningOut); let nIn = parseDateStringToTime(p.nightIn); let nOut = parseDateStringToTime(p.nightOut); let isLeave = mIn.includes('LEAVE') || mOut.includes('LEAVE') || eIn.includes('LEAVE') || eOut.includes('LEAVE') || nIn.includes('LEAVE') || nOut.includes('LEAVE'); if(isLeave) { td.innerHTML = '<div class="time-pill leave">LEAVE</div>'; } else { const getPill = (val, pName) => { let isReqPending = globalAdminRequests.some(r => r.empId === emp.empId && r.reqDate === dateStr && r.punchSession === pName && r.status.toLowerCase() === 'pending'); if(isReqPending || (val && val.startsWith('P(') && val.endsWith(')'))) return `<span class="text-[9px] text-blue-600 font-black leading-tight flex items-center gap-1 justify-center whitespace-nowrap"><i class="fas fa-spinner fa-spin"></i> Wait</span>`; return val !== "--" ? `<span class="text-[10px] font-black text-gray-800 leading-tight">${val}</span>` : `<span class="text-[10px] text-gray-300 leading-tight">-</span>`; }; td.innerHTML = `<div class="time-pill">${getPill(mIn,'Morning In')}${getPill(mOut,'Morning Out')}${getPill(eIn,'Evening In')}${getPill(eOut,'Evening Out')}${getPill(nIn,'Night In')}${getPill(nOut,'Night Out')}</div>`; } td.onclick = () => openAdminEditPunch(emp, d, pObj.punches); } else { td.innerHTML = '<span class="text-gray-300 text-sm">-</span>'; } tr.appendChild(td); } bd.appendChild(tr); }); };
-const renderAdminReqs = (reqs) => { const tb = document.getElementById('adminRequestsBody'); tb.innerHTML = ''; if(!reqs || !Array.isArray(reqs) || reqs.length === 0) return tb.innerHTML = `<tr><td colspan="9" class="text-center py-4 font-bold uppercase text-[12px] text-gray-500 tracking-widest">No Requests Found</td></tr>`; reqs.forEach(r => { let actBtn = r.status.toLowerCase()==='pending' ? `<button onclick="adminApproveReq('${r.reqId}')" class="neu-btn neu-btn-success px-2 py-1.5 text-[10px] uppercase mr-2 shadow-sm">Approve</button><button onclick="adminRejectReq('${r.reqId}')" class="neu-btn neu-btn-danger px-2 py-1.5 text-[10px] uppercase shadow-sm">Reject</button>` : `<span class="font-black text-[10px] uppercase px-2 py-1 rounded bg-gray-100 border ${r.status.toLowerCase()==='approved'?'text-green-600 border-green-200':'text-red-600 border-red-200'}">${r.status}</span>`; let cName = (r.empName||'--').replace(/^Dr\.\s*/i, '<i class="fas fa-user-nurse text-blue-500 mr-1"></i>'); let fTime = parseDateStringToTime(r.requestedTime); tb.innerHTML += `<tr><td class="font-black text-blue-700 text-[11px] align-middle">${r.reqId||'--'}</td><td class="font-black text-gray-800 text-[11px] align-middle">${r.empId||'--'}</td><td class="font-black text-gray-800 text-[11px] align-middle">${cName}</td><td class="font-bold text-[11px] align-middle">${r.reqDate||'--'}</td><td class="font-bold text-[11px] text-purple-700 align-middle">${r.reason||'--'}</td><td class="font-bold text-[11px] align-middle">${r.punchSession||'--'}</td><td class="font-bold text-[11px] align-middle">${fTime}</td><td class="font-bold text-[11px] align-middle">${r.description||'--'}</td><td class="align-middle">${actBtn}</td></tr>`; }); };
+
+/* NEW ADMIN BULK APPROVAL LOGIC */
+const renderAdminReqs = (reqs) => { 
+    const tb = document.getElementById('adminRequestsBody'); 
+    tb.innerHTML = ''; 
+    document.getElementById('bulkApproveBtn').classList.add('hidden');
+    if(document.getElementById('selectAllReqs')) document.getElementById('selectAllReqs').checked = false;
+
+    if(!reqs || !Array.isArray(reqs) || reqs.length === 0) return tb.innerHTML = `<tr><td colspan="10" class="text-center py-4 font-bold uppercase text-[12px] text-gray-500 tracking-widest">No Requests Found</td></tr>`; 
+    
+    reqs.forEach(r => { 
+        let isPending = r.status.toLowerCase() === 'pending';
+        let chkBox = isPending ? `<input type="checkbox" class="req-checkbox w-3.5 h-3.5 cursor-pointer accent-blue-600" value="${r.reqId}" onclick="checkBulkBtnState()">` : ``;
+
+        let actBtn = isPending ? `<button onclick="adminApproveReq('${r.reqId}')" class="neu-btn neu-btn-success px-2 py-1 text-[9px] uppercase mr-1 shadow-sm bg-green-50 border border-green-200">Approve</button><button onclick="adminRejectReq('${r.reqId}')" class="neu-btn neu-btn-danger px-2 py-1 text-[9px] uppercase shadow-sm bg-red-50 border border-red-200">Reject</button>` : `<span class="font-black text-[9px] uppercase px-2 py-1 rounded bg-gray-100 border ${r.status.toLowerCase()==='approved'?'text-green-600 border-green-200':'text-red-600 border-red-200'}">${r.status}</span>`; 
+        let cName = (r.empName||'--').replace(/^Dr\.\s*/i, '<i class="fas fa-user-nurse text-blue-500 mr-1"></i>'); 
+        let fTime = parseDateStringToTime(r.requestedTime); 
+        tb.innerHTML += `<tr><td class="text-center align-middle">${chkBox}</td><td class="font-black text-blue-700 text-[10px] align-middle">${r.reqId||'--'}</td><td class="font-black text-gray-800 text-[10px] align-middle">${r.empId||'--'}</td><td class="font-black text-gray-800 text-[10px] align-middle">${cName}</td><td class="font-bold text-[10px] align-middle whitespace-nowrap">${r.reqDate||'--'}</td><td class="font-bold text-[10px] text-purple-700 align-middle">${r.reason||'--'}</td><td class="font-bold text-[10px] align-middle">${r.punchSession||'--'}</td><td class="font-bold text-[10px] align-middle">${fTime}</td><td class="font-bold text-[10px] align-middle max-w-[150px] truncate" title="${r.description||'--'}">${r.description||'--'}</td><td class="align-middle whitespace-nowrap">${actBtn}</td></tr>`; 
+    }); 
+};
+
+const toggleAllReqs = (source) => {
+    const checkboxes = document.querySelectorAll('.req-checkbox');
+    checkboxes.forEach(cb => cb.checked = source.checked);
+    checkBulkBtnState();
+};
+
+const checkBulkBtnState = () => {
+    const checkedBoxes = document.querySelectorAll('.req-checkbox:checked');
+    const btn = document.getElementById('bulkApproveBtn');
+    if(checkedBoxes.length > 0) {
+        btn.classList.remove('hidden');
+    } else {
+        btn.classList.add('hidden');
+    }
+};
+
+const adminBulkApprove = async () => {
+    const checkboxes = document.querySelectorAll('.req-checkbox:checked');
+    const selectedIds = Array.from(checkboxes).map(cb => cb.value);
+    
+    if(selectedIds.length === 0) return showToast("No requests selected");
+    
+    showLoad(`Approving ${selectedIds.length} Requests...`);
+    try {
+        const res = await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'adminBulkProcessReq', reqIds: selectedIds, status: 'Approved' })
+        });
+        const out = await res.json();
+        hideLoad();
+        if (out.success) {
+            showToast("Bulk Approval Successful");
+            fetchAdminData(document.getElementById('adminMonthSelector').value);
+        } else {
+            showToast(out.message);
+        }
+    } catch (e) {
+        hideLoad();
+        showToast("Network Error during bulk approve");
+    }
+};
+
 const updateAdminEmpDropdown = () => { const sel = document.getElementById('aalEmpId'); sel.innerHTML = '<option value="">Select Employee...</option>'; adminAllEmployees.forEach(e => { let opt = document.createElement('option'); opt.value = e.empId; let cName = e.empName.replace(/^Dr\.\s*/i, '👤 '); opt.innerText = `${cName} (${e.empId})`; sel.appendChild(opt); }); };
 const openAdminLeaveModal = () => { document.getElementById('aalEmpId').value = ''; document.getElementById('aalDate').value = ''; document.getElementById('aalType').value = 'Leave (Full Day)'; openModal('adminApplyLeaveModal'); };
 const adminSubmitLeave = async () => { const eId = document.getElementById('aalEmpId').value; const dt = document.getElementById('aalDate').value; const typ = document.getElementById('aalType').value; if(!eId || !dt) return showToast("Select Emp and Date"); showLoad("Applying Leave..."); try { const pDate = new Date(dt); const mStr = getMonthStr(pDate.getMonth()); const fDate = `${String(pDate.getDate()).padStart(2,'0')}-${mStr}-${pDate.getFullYear()}`; const res = await fetch(API_URL, {method:'POST', body:JSON.stringify({action:'adminApplyLeave', empId:eId, reqDate:fDate, leaveType:typ, targetMonth:mStr+pDate.getFullYear()})}); const data = await res.json(); hideLoad(); if(data.success) { showToast("Leave Applied"); closeModal('adminApplyLeaveModal'); fetchAdminData(document.getElementById('adminMonthSelector').value); } else { showToast(data.message); } } catch(e) { hideLoad(); showToast("Network Error"); } };
-const parseToTimeInput = (str) => { 
-    if(!str || str==="--") return ""; 
-    let formattedStr = parseDateStringToTime(str);
-    if(!formattedStr || formattedStr==="--") return "";
-    let parts1 = formattedStr.split(' '); 
-    let time = parts1[0]; 
-    let modifier = parts1[1]; 
-    if(!time) return ""; 
-    let parts2 = time.split(':'); 
-    let h = parts2[0]; 
-    let m = parts2[1]; 
-    if (!modifier) {
-        // Assume 24 hour format if no modifier is present after parsing
-        return `${String(h).padStart(2,'0')}:${m}`;
-    }
-    if(h === '12' && modifier === 'AM') h = '00'; 
-    else if (h !== '12' && modifier === 'PM') h = String(parseInt(h, 10) + 12); 
-    return `${String(h).padStart(2,'0')}:${m}`; 
-};
-
-const formatTo12H = (val) => { 
-    if(!val) return "--"; 
-    let parts = val.split(':'); 
-    let h = parseInt(parts[0], 10); 
-    let m = parts[1]; 
-    let ap = h >= 12 ? 'PM' : 'AM'; 
-    h = h % 12 || 12; 
-    return `${String(h).padStart(2,'0')}:${m} ${ap}`; 
-};
+const parseToTimeInput = (str) => { if(!str || str==="--") return ""; let formattedStr = parseDateStringToTime(str); if(!formattedStr || formattedStr==="--") return ""; let parts1 = formattedStr.split(' '); let time = parts1[0]; let modifier = parts1[1]; if(!time) return ""; let parts2 = time.split(':'); let h = parts2[0]; let m = parts2[1]; if (!modifier) { return `${String(h).padStart(2,'0')}:${m}`; } if(h === '12' && modifier === 'AM') h = '00'; else if (h !== '12' && modifier === 'PM') h = String(parseInt(h, 10) + 12); return `${String(h).padStart(2,'0')}:${m}`; };
+const formatTo12H = (val) => { if(!val) return "--"; let parts = val.split(':'); let h = parseInt(parts[0], 10); let m = parts[1]; let ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; return `${String(h).padStart(2,'0')}:${m} ${ap}`; };
 const openAdminEditPunch = (emp, day, p) => { document.getElementById('aepEmpName').innerText = emp.empName; document.getElementById('aepDate').innerText = `Day ${day} - ${adminCurrentMonth}`; document.getElementById('aepEmpId').value = emp.empId; document.getElementById('aepRowIdx').value = emp.rowIdx; document.getElementById('aepDay').value = day; document.getElementById('aepMIn').value = parseToTimeInput(p.morningIn); document.getElementById('aepMOut').value = parseToTimeInput(p.morningOut); document.getElementById('aepEIn').value = parseToTimeInput(p.eveningIn); document.getElementById('aepEOut').value = parseToTimeInput(p.eveningOut); document.getElementById('aepNIn').value = parseToTimeInput(p.nightIn); document.getElementById('aepNOut').value = parseToTimeInput(p.nightOut); openModal('adminEditPunchModal'); };
-const adminSavePunches = async () => { 
-    /* We ensure that the payload sent to GAS is strictly the formatted string */
-    const d = { 
-        rowIdx: document.getElementById('aepRowIdx').value, 
-        day: document.getElementById('aepDay').value, 
-        mIn: formatTo12H(document.getElementById('aepMIn').value), 
-        mOut: formatTo12H(document.getElementById('aepMOut').value), 
-        eIn: formatTo12H(document.getElementById('aepEIn').value), 
-        eOut: formatTo12H(document.getElementById('aepEOut').value), 
-        nIn: formatTo12H(document.getElementById('aepNIn').value), 
-        nOut: formatTo12H(document.getElementById('aepNOut').value), 
-        targetMonth: adminCurrentMonth 
-    }; 
-    showLoad("Updating Record..."); 
-    try { 
-        const res = await fetch(API_URL, {method:'POST', body:JSON.stringify({action:'adminUpdatePunch', data:d})}); 
-        const out = await res.json(); 
-        hideLoad(); 
-        if(out.success) { 
-            showToast("Updated"); 
-            closeModal('adminEditPunchModal'); 
-            fetchAdminData(document.getElementById('adminMonthSelector').value); 
-        } else { 
-            showToast(out.message); 
-        } 
-    } catch(e) { 
-        hideLoad(); 
-        showToast("Network Error"); 
-    } 
-};
+const adminSavePunches = async () => { const d = { rowIdx: document.getElementById('aepRowIdx').value, day: document.getElementById('aepDay').value, mIn: formatTo12H(document.getElementById('aepMIn').value), mOut: formatTo12H(document.getElementById('aepMOut').value), eIn: formatTo12H(document.getElementById('aepEIn').value), eOut: formatTo12H(document.getElementById('aepEOut').value), nIn: formatTo12H(document.getElementById('aepNIn').value), nOut: formatTo12H(document.getElementById('aepNOut').value), targetMonth: adminCurrentMonth }; showLoad("Updating Record..."); try { const res = await fetch(API_URL, {method:'POST', body:JSON.stringify({action:'adminUpdatePunch', data:d})}); const out = await res.json(); hideLoad(); if(out.success) { showToast("Updated"); closeModal('adminEditPunchModal'); fetchAdminData(document.getElementById('adminMonthSelector').value); } else { showToast(out.message); } } catch(e) { hideLoad(); showToast("Network Error"); } };
 const adminApproveReq = async (reqId) => { showLoad("Approving..."); try { const res = await fetch(API_URL, {method:'POST', body:JSON.stringify({action:'adminProcessReq', reqId:reqId, status:'Approved'})}); const out = await res.json(); hideLoad(); if(out.success) { showToast("Approved & Updated"); fetchAdminData(document.getElementById('adminMonthSelector').value); } else { showToast(out.message); } } catch(e) { hideLoad(); showToast("Network Error"); } };
 const adminRejectReq = async (reqId) => { showLoad("Rejecting..."); try { const res = await fetch(API_URL, {method:'POST', body:JSON.stringify({action:'adminProcessReq', reqId:reqId, status:'Rejected'})}); const out = await res.json(); hideLoad(); if(out.success) { showToast("Rejected"); fetchAdminData(document.getElementById('adminMonthSelector').value); } else { showToast(out.message); } } catch(e) { hideLoad(); showToast("Network Error"); } };
 
